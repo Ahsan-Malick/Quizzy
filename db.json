@@ -1,0 +1,58 @@
+{"Questions": [
+    {
+    "id": 1,
+    "question": "What is the smallest unit of an element that retains the chemical properties of that element?",
+    "options": [
+    "Atom",
+    "Molecule",
+    "Compound",
+    "Ion"
+    ],
+    "answer": "Atom"
+    },
+    {
+    "id": 2,
+    "question": "Which of the following is NOT a type of renewable energy source?",
+    "options": [
+    "Solar",
+    "Wind",
+    "Nuclear",
+    "Hydroelectric"
+    ],
+    "answer": "Nuclear"
+    },
+    {
+    "id": 3,
+    "question": "What is the chemical formula for water?",
+    "options": [
+    "H2O",
+    "CO2",
+    "NaCl",
+    "O2"
+    ],
+    "answer": "H2O"
+    },
+    {
+    "id": 4,
+    "question": "What is the largest planet in our solar system?",
+    "options": [
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Venus"
+    ],
+    "answer": "Jupiter"
+    },
+    {
+    "id": 5,
+    "question": "What is the process by which plants convert sunlight into energy?",
+    "options": [
+    "Respiration",
+    "Photosynthesis",
+    "Fermentation",
+    "Transpiration"
+    ],
+    "answer": "Photosynthesis"
+    }
+    ]
+}
