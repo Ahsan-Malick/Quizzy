@@ -11,7 +11,7 @@ import {
 import { Brain, Menu, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const Navbar:React.FC =()=> {
+export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navItems = [
@@ -28,7 +28,7 @@ const Navbar:React.FC =()=> {
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
               <Brain className="h-8 w-8 text-primary" />
-              <span className="ml-2 text-xl font-bold text-foreground">Quizzy</span>
+              <span className="ml-2 text-xl font-bold text-foreground">QuizAI</span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navItems.map((item) => (
@@ -124,5 +124,3 @@ const Navbar:React.FC =()=> {
     </nav>
   )
 }
-
-export default Navbar
