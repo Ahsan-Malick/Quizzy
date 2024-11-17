@@ -4,7 +4,13 @@ import Hero from './Hero'
 import HowItWorks from './How-it-works'
 import Pricing from './Pricing'
 
-const Home: React.FC = () => {
+
+interface HomeProps {
+  userLogged: boolean;
+}
+
+
+const Home: React.FC<HomeProps> = ({userLogged}) => {
   return (
     <div>
      <Navbar></Navbar>

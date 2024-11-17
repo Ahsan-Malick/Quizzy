@@ -30,6 +30,8 @@ import {
 } from "./ui/dropdown-menu"
 import { Progress } from "./ui/progress"
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
+import axios from 'axios'
+import { useStore } from "../store/store"
 
 // Mock user data
 const user = {
@@ -48,13 +50,48 @@ const user = {
 
 export default function UserWelcome() {
   const [activeTab, setActiveTab] = useState<any>('dashboard')
-  const [uploadedFile, setUploadedFile] = useState(null)
+  const [uploadedFile, setUploadedFile] = useState<File|null>(null)
   const [generatingQuiz, setGeneratingQuiz] = useState(false)
 
-  const handleFileUpload = (e: React.MouseEvent<HTMLInputElement>) => {
+  const getQuestionsAsync = useStore((state)=>state.getQuestionsAsync)
+
+  const handleClick = async()=>{
+
+await getQuestionsAsync()
+  }
+
+
+//OnChanging the file is uploaded
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const assertFile  = e.target as HTMLInputElement
-    // // const file = event.target.files[0]
-    // setUploadedFile(file)
+    const file = assertFile.files
+    if (file){
+      setUploadedFile(file[0])
+    }
+    else{
+      alert("Something went wrong, try again")
+    }
+
+  }
+
+  const uploadFile = async() =>{
+    if (uploadedFile) { // Check if a file has been selected *before* creating FormData
+      const formData = new FormData();
+      formData.append('file', uploadedFile);
+
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/uploadfile/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        await getQuestionsAsync()
+        // ... process successful response
+      } catch (error) {
+        alert(error)
+      }
+    } else {
+        // Handle the case where no file is selected
+        alert("Please select a file."); // Or another appropriate action.
+    }
   }
 
   const generateQuiz = () => {
@@ -164,7 +201,7 @@ export default function UserWelcome() {
                   <p className="mb-2 text-sm text-indigo-600"><span className="font-semibold">Click to upload</span> or drag and drop</p>
                   <p className="text-xs text-indigo-500">PDF, DOCX, or TXT (MAX. 10MB)</p>
                 </div>
-                <input id="dropzone-file" type="file" className="hidden" onClick={handleFileUpload} accept=".pdf,.docx,.txt" />
+                <input id="dropzone-file" type="file" className="hidden" onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
               </label>
             </div>
             {uploadedFile && (
@@ -182,7 +219,7 @@ export default function UserWelcome() {
           <div className="flex justify-center">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button 
-                onClick={generateQuiz}
+                onClick={uploadFile}
                 disabled={!uploadedFile || generatingQuiz}
                 className="px-8 py-4 text-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl shadow-lg"
               >
@@ -198,6 +235,7 @@ export default function UserWelcome() {
                   </>
                 )}
               </Button>
+              <Button className='h-10 w-20 bg-red-300' onClick={handleClick}>Test</Button>
             </motion.div>
           </div>
           <p className="text-sm text-indigo-600 bg-indigo-50 p-4 rounded-lg">

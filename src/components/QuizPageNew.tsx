@@ -27,7 +27,8 @@ const QuizEnvironment:React.FC = () => {
     question: string;
     user_answer: string|number;
     result: string
-    index: number
+    question_index: number
+    option_index: number
   };
 
   const getQuestionsAsync = useStore((state)=>state.getQuestionsAsync)
@@ -45,7 +46,7 @@ const QuizEnvironment:React.FC = () => {
 
   const currentQuestion: string = questionsList[currentQuestionIndex]?.question;
   const totalQuestions: number | undefined = questionsList?.length;
- 
+
  
 
   useEffect(() => {
@@ -70,8 +71,10 @@ const QuizEnvironment:React.FC = () => {
           console.error("Error fetching questions:", error);
         }
       };
+      console.log("Hello")
     
       fetchQuestions();
+      
 
     
 
@@ -85,7 +88,6 @@ const QuizEnvironment:React.FC = () => {
     const newAnswers = [...userAnswers]         
     newAnswers[currentQuestionIndex] = answer
     setUserAnswers(newAnswers)
-    console.log(newAnswers)
   }
 
   const goToNextQuestion = () => {
@@ -102,14 +104,19 @@ const QuizEnvironment:React.FC = () => {
 
   const handleAnswerSubmission = async (option: string, index: number ) => {
 
+    //index(0-3) refers to any option out of four
     const question = currentQuestion
     const user_answer = option
-    const result = "incorrect"
+    const result = "incorrect" //default
+    const question_index = currentQuestionIndex
+    const option_index = index+1
     
     
       const answer: Answer = {
-        email: "dummy@ymail.com", question, user_answer, result, index
+        email: "dummy@ymail.com", question, user_answer, result, option_index, question_index
       }
+
+      console.log(answer)
       try {
         await axios.post(
           "http://127.0.0.1:8000/check-answer/", answer // check if the current question is answered
@@ -140,6 +147,8 @@ const QuizEnvironment:React.FC = () => {
   const isAllQuestionsAnswered = userAnswers.every(answer => answer !== '')
 
   return (
+ 
+ <>{questionsList.length>0&&
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 p-4 flex items-center justify-center">
       <Toaster position="top-center" />
       <Card className="w-full max-w-2xl bg-white/80 backdrop-blur-sm shadow-xl">
@@ -241,6 +250,8 @@ const QuizEnvironment:React.FC = () => {
         </CardContent>
       </Card>
     </div>
+}
+    </>
   )
 }
 

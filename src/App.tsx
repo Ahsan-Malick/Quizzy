@@ -7,6 +7,8 @@ function App() {
   
  const getQuestionsAsync = useStore((state)=>state.getQuestionsAsync)
  const check = useStore((state)=>state.checkQuestionAttemptAsync)
+
+ const [isloggedin, setIsLogedIn] = useState<boolean>(false)
  
 
  useEffect(()=>{
@@ -24,7 +26,7 @@ function App() {
 
   return (
     <>
-    <Home></Home>
+    <Home userLogged={isloggedin}></Home>
    
    </>
   )

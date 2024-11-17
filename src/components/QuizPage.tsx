@@ -80,7 +80,7 @@ const result = "incorrect" //default value, will be decided finally in the backe
   }
 }
 
-
+console.log("hello")
 useEffect(()=>{
   const fetchQuestions = async () => {
 
