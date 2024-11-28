@@ -7,6 +7,7 @@ function App() {
   
  const getQuestionsAsync = useStore((state)=>state.getQuestionsAsync)
  const check = useStore((state)=>state.checkQuestionAttemptAsync)
+ const validateAuthAsync = useStore((state)=>state.validateAuthAsync)
 
  const [isloggedin, setIsLogedIn] = useState<boolean>(false)
  
@@ -19,9 +20,13 @@ function App() {
       console.error("Error fetching questions:", error);
     }
   };
+  const validateAuth = async () => {
+    await validateAuthAsync();
+  };
+  validateAuth();
 
   fetchQuestions();
- },[getQuestionsAsync])
+ },[getQuestionsAsync, validateAuthAsync])
 
 
   return (

@@ -11,8 +11,6 @@ import { useStore } from "../store/store"
 import axios from "axios";
 
 
-const QuizEnvironment:React.FC = () => {
-
   // type question we are getting from data base after generation
   type Question = {
     id: string;
@@ -31,8 +29,15 @@ const QuizEnvironment:React.FC = () => {
     option_index: number
   };
 
+ 
+
+
+const QuizEnvironment:React.FC = () => {
+
+
   const getQuestionsAsync = useStore((state)=>state.getQuestionsAsync)
   const checkQuestionAttemptAsync = useStore((state)=> state.checkQuestionAttemptAsync) //fetch current option against current question.
+  
 
   const questionsList: Question[] = useStore((state)=>state.questions)
   const currentOption: boolean|string = useStore((state)=>state.currentOption) //get the current option from the state in store
@@ -71,8 +76,6 @@ const QuizEnvironment:React.FC = () => {
           console.error("Error fetching questions:", error);
         }
       };
-      console.log("Hello")
-    
       fetchQuestions();
       
 
@@ -116,7 +119,6 @@ const QuizEnvironment:React.FC = () => {
         email: "dummy@ymail.com", question, user_answer, result, option_index, question_index
       }
 
-      console.log(answer)
       try {
         await axios.post(
           "http://127.0.0.1:8000/check-answer/", answer // check if the current question is answered

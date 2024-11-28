@@ -54,12 +54,16 @@ export default function UserWelcome() {
   const [generatingQuiz, setGeneratingQuiz] = useState(false)
 
   const getQuestionsAsync = useStore((state)=>state.getQuestionsAsync)
-
+  const logOutUserAsync = useStore((state)=>state.logOutUserAsync)
+  const userDetails = useStore((state)=>state.userDetail)
   const handleClick = async()=>{
 
 await getQuestionsAsync()
   }
 
+  const handleLogOut = async()=>{
+    await logOutUserAsync()
+  }
 
 //OnChanging the file is uploaded
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +84,9 @@ await getQuestionsAsync()
       formData.append('file', uploadedFile);
 
       try {
-        const response = await axios.post('http://127.0.0.1:8000/uploadfile/', formData, {
+        const response = await axios.post('http://127.0.0.1:8000/quiz/uploadfile/', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true
         });
         await getQuestionsAsync()
         // ... process successful response
@@ -117,7 +122,7 @@ await getQuestionsAsync()
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="text-3xl font-bold mb-6 text-indigo-800">Welcome back, {user.name}!</h2>
+        <h2 className="text-3xl font-bold mb-6 text-indigo-800">Welcome back, {userDetails?.firstname} {userDetails?.lastname}!</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <motion.div 
             className="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-xl text-white shadow-lg"
@@ -323,43 +328,40 @@ await getQuestionsAsync()
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-12 w-12 rounded-full">
-                Avatar commented
+                hello
                 {/* <Avatar className="h-12 w-12">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback>AJ</AvatarFallback>
                 </Avatar> */}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56 bg-white" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name}</p>
+                  <p className="text-sm font-medium leading-none">{userDetails?.firstname} {userDetails?.lastname}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    alex.johnson@example.com
+                    {userDetails?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BarChart2 className="mr-2 h-4 w-4" />
-                <span>Analytics</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Users className="mr-2 h-4 w-4" />
-                <span>Invite Friends</span>
-              </DropdownMenuItem>
+              {[
+                { icon: Settings, label: 'Settings' },
+                { icon: BarChart2, label: 'Analytics' },
+                { icon: Users, label: 'Invite Friends' },
+              ].map(({ icon: Icon, label }) => (
+                <DropdownMenuItem className="flex items-center hover:bg-indigo-100 cursor-pointer" key={label}>
+                  <Icon className="mr-2 h-4 w-4" />
+                  <span>{label}</span>
+                </DropdownMenuItem>
+              ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem className="flex items-center hover:bg-indigo-100 cursor-pointer" onClick={handleLogOut}>
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        
         <nav className="flex flex-wrap justify-center gap-2 rounded-xl bg-indigo-50 p-2 mb-8">
           {[
             { id: 'dashboard', icon: Book, label: 'Dashboard' },
