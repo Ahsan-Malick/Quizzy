@@ -13,6 +13,8 @@ import SignInPage from "./pages/signinpage.tsx";
 import SignUpPage from "./pages/signuppage.tsx"
 import Auth from "./components/Auth.tsx";
 import EnhancedQuizEnvironment from "./components/quiznew.tsx";
+import QuizResultPage from "./components/Result.tsx";
+import ResultPage from "./pages/resultpage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -21,11 +23,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/quiz", //protected route, on this page we will have to check if the user is logged in. by making parent of path.
-    element: <EnhancedQuizEnvironment />,
-  },
-  {
-    path: "/result",
-    element: <Auth><Result /></Auth>,
+    element: <Auth><EnhancedQuizEnvironment /></Auth>,
   },
   {
     path: "/welcome",
@@ -42,6 +40,11 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <SignUpPage></SignUpPage>,
+  },
+
+  {
+    path: "/result",
+    element: <Auth><ResultPage/></Auth>,
   },
 ]);
 

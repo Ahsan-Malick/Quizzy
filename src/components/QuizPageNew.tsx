@@ -28,6 +28,14 @@ import axios from "axios";
     question_index: number
     option_index: number
   };
+  
+  type User = {
+    firstname: string;
+    lastname: string;
+    username: string;
+    email: string;
+    disabled: boolean
+  };
 
  
 
@@ -48,6 +56,7 @@ const QuizEnvironment:React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(3000) // 5 minutes in seconds
   const [isQuizSubmitted, setIsQuizSubmitted] = useState<boolean>(false)
   const [page, setPage] = useState<boolean>(false)
+  const userDetail: User | null = useStore((state) => state.userDetail);
 
   const currentQuestion: string = questionsList[currentQuestionIndex]?.question;
   const totalQuestions: number | undefined = questionsList?.length;
@@ -70,7 +79,7 @@ const QuizEnvironment:React.FC = () => {
     const fetchQuestions = async () => {
 
         try {
-          await getQuestionsAsync();
+          await getQuestionsAsync(userDetail?.email || '');
           await checkQuestionAttemptAsync(currentQuestion);
         } catch (error) {
           console.error("Error fetching questions:", error);
@@ -123,7 +132,7 @@ const QuizEnvironment:React.FC = () => {
         await axios.post(
           "http://127.0.0.1:8000/check-answer/", answer // check if the current question is answered
         );
-        await checkQuestionAttemptAsync(question);
+        await checkQuestionAttemptAsync(question_index);
       } catch (error) {
         console.error(error);
       }

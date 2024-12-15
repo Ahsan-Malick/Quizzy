@@ -2,8 +2,17 @@ import { useStore } from "../store/store";
 import { useEffect } from "react";
 import UserWelcome from "../components/Welcome";
 
-const WelcomePage = () => {
+
+type Question = {
+  id: string;
+  question: string;
+  options: string[];
+  answer: string;
+};
+
+const WelcomePage:React.FC = () => {
   const userDetails = useStore((state) => state.userDetail);
+  const questionsList: Question[] = useStore((state) => state.questions);
 
   useEffect(() => {
     if (!userDetails) {
@@ -15,5 +24,7 @@ const WelcomePage = () => {
 
   return <UserWelcome/>;
 };
+
+
 
 export default WelcomePage;

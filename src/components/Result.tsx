@@ -1,96 +1,131 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Trophy, ThumbsUp, Target, BookOpen, BarChart2, RefreshCcw } from 'lucide-react'
+import { Button } from "./Button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "./ui/card"
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
-import { CheckCircle, XCircle, RotateCcw, Share2 } from 'lucide-react'
-import { Button } from "./Button"
+import confetti from 'canvas-confetti'
+import {useStore} from '../store/store'
+import { Link } from 'react-router-dom'
 
-// Mock quiz result data
-const quizResult = {
-  score: 7,
-  totalQuestions: 10,
-  correctAnswers: 7,
-  percentage: 70,
-}
 
-const QuizResultPage: React.FC=()=>{
+
+export default function QuizResultPage() {
+
+  const result = useStore((state) => state.result);
+  const score = result.total_correct_answers;
+  const totalQuestions = result.total_questions;
+  const quizTitle = result.title;
+  
+  const [progress, setProgress] = useState(0)
+  const percentage = Math.round((score / totalQuestions) * 100)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setProgress(percentage), 500)
+    return () => clearTimeout(timer)
+  }, [percentage])
+
+  useEffect(() => {
+    if (percentage >= 90) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      })
+    }
+  }, [percentage])
+
+  const getMessage = () => {
+    if (percentage >= 90) return { text: "Excellent!", icon: Trophy, color: "#FFC107" }
+    if (percentage >= 70) return { text: "Good Job!", icon: ThumbsUp, color: "#4CAF50" }
+    if (percentage >= 50) return { text: "Nice Effort!", icon: Target, color: "#2196F3" }
+    return { text: "Keep Practicing!", icon: BookOpen, color: "#3F51B5" }
+  }
+
+  const message = getMessage()
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
-      <motion.div 
-        className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full"
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-4">
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="w-full max-w-lg"
       >
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden rounded-2xl">
-          <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-blue-200 to-purple-200 rounded-full opacity-30 animate-pulse"></div>
-          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-pink-200 to-yellow-200 rounded-full opacity-30 animate-pulse" style={{ animationDelay: '1s' }}></div>
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Quiz Results</h1>
-          
-          <div className="flex justify-center mb-8">
-            <div style={{ width: 200, height: 200 }}>
-              <CircularProgressbar
-                value={quizResult.percentage}
-                text={`${quizResult.percentage}%`}
-                styles={buildStyles({
-                  textColor: '#6366F1',
-                  pathColor: '#6366F1',
-                  trailColor: '#E0E7FF',
-                })}
-              />
+        <Card className="w-full bg-white shadow-xl border-indigo-200 border-2">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              {quizTitle}
+            </CardTitle>
+            <CardDescription className="text-center text-gray-600">Your Quiz Results</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="w-48 h-48 mx-auto"
+              >
+                <CircularProgressbar
+                  value={progress}
+                  text={`${percentage}%`}
+                  styles={buildStyles({
+                    rotation: 0.25,
+                    strokeLinecap: 'round',
+                    textSize: '16px',
+                    pathTransitionDuration: 0.5,
+                    pathColor: `rgba(62, 152, 199, ${progress / 100})`,
+                    textColor: '#3e98c7',
+                    trailColor: '#d6d6d6',
+                    backgroundColor: '#3e98c7',
+                  })}
+                />
+              </motion.div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <motion.div 
-              className="bg-indigo-100 p-4 rounded-lg text-center"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <p className="text-2xl font-bold text-indigo-600">{quizResult.score}</p>
-              <p className="text-sm text-indigo-800">Your Score</p>
-            </motion.div>
-            <motion.div 
-              className="bg-purple-100 p-4 rounded-lg text-center"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <p className="text-2xl font-bold text-purple-600">{quizResult.totalQuestions}</p>
-              <p className="text-sm text-purple-800">Total Questions</p>
-            </motion.div>
-          </div>
-
-          <div className="space-y-2 mb-8">
-            <div className="flex items-center">
-              <CheckCircle className="text-green-500 mr-2" />
-              <span className="text-gray-700">Correct Answers: {quizResult.correctAnswers}</span>
+            <div className="text-center space-y-2">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="flex items-center justify-center text-2xl font-bold"
+                style={{ color: message.color }}
+              >
+                <message.icon className="mr-2 h-6 w-6" />
+                {message.text}
+              </motion.div>
+              <p className="text-gray-600">
+                You scored {score} out of {totalQuestions} questions correctly.
+              </p>
             </div>
-            <div className="flex items-center">
-              <XCircle className="text-red-500 mr-2" />
-              <span className="text-gray-700">Incorrect Answers: {quizResult.totalQuestions - quizResult.correctAnswers}</span>
+            <div className="bg-gray-50 p-4 rounded-lg mt-6">
+              <h3 className="text-lg font-semibold mb-2 text-indigo-700">Performance Breakdown</h3>
+              <ul className="space-y-2">
+                <li className="flex justify-between items-center">
+                  <span className="text-gray-600">Correct Answers</span>
+                  <span className="font-bold text-green-600">{score}</span>
+                </li>
+                <li className="flex justify-between items-center">
+                  <span className="text-gray-600">Incorrect Answers</span>
+                  <span className="font-bold text-red-600">{totalQuestions - score}</span>
+                </li>
+              </ul>
             </div>
-          </div>
-
-          <div className="flex flex-col space-y-2">
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
-              <RotateCcw className="mr-2 h-4 w-4" /> Retake Quiz
+          </CardContent>
+          <CardFooter className="flex justify-center space-x-4">
+            <Link to = "/welcome">
+            <Button variant="outline" className="bg-white text-indigo-600 border-indigo-300 hover:bg-indigo-50">
+              <BarChart2 className="mr-2 h-4 w-4" />
+              Dashboard
             </Button>
-            <Button variant="outline" className="w-full">
-              <Share2 className="mr-2 h-4 w-4" /> Share Results
-            </Button>
-          </div>
-        </div>
+            </Link>
+            
+          </CardFooter>
+        </Card>
       </motion.div>
     </div>
   )
 }
-
-export default QuizResultPage

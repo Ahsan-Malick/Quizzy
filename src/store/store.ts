@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import zukeeper from "zukeeper"
 import axios from "axios";
 
 type Question = {
@@ -10,11 +9,14 @@ type Question = {
 };
 
 type TestQuestion = {
+  title: string;
   questions: Question[];
   email: string;
 };
 type Result = {
-  result: string;
+  title: string;
+  total_questions: number;
+  total_correct_answers: number;
 };
 type User = {
   firstname: string;
@@ -28,15 +30,14 @@ type QuizzyStore = {
   questions: Question[];
   test_questions: TestQuestion;
   no_quiz_found: string;
-  getQuestionsAsync: () => Promise<void>;
-  // testgetQuestionsAsync: ()=>Promise<void>;
-  checkQuestionAttemptAsync: (question: string) => Promise<void>;
   currentOption: boolean | string;
   currentAnswer: string;
-  getResultAsync: (body: { email: string }) => Promise<void>;
-  result: string;
+  result: Result;
   isLoggedIn: boolean;
   userDetail: User | null;
+  getQuestionsAsync: (email: string) => Promise<void>;
+  checkQuestionAttemptAsync: (question_index: number) => Promise<void>;
+  getResultAsync: (result_body: { email: string, score: string|number, total_questions: number }) => Promise<void>;
   checkUsernameAsync: (body: { username: string }) => Promise<boolean>;
   checkEmailAsync: (body: { email: string }) => Promise<boolean>;
   signUpUserAsync: (data: object) => Promise<void>;
@@ -49,7 +50,8 @@ export const useStore = create<QuizzyStore>((set) => ({
   questions: [],
   isLoggedIn: false,
   userDetail: null,
-  test_questions: { questions: [], email: "" },
+  test_questions: { questions: [], email: "", title: "" },
+  result: { title: "", total_questions: 0, total_correct_answers: 0 },
   no_quiz_found: "",
   validateAuthAsync: async () => {
     const response = await axios.get("http://127.0.0.1:8000/auth/validate", {
@@ -111,17 +113,17 @@ export const useStore = create<QuizzyStore>((set) => ({
       alert(error)
     }
   },
-  getQuestionsAsync: async () => {
+  getQuestionsAsync: async (email: string) => {
     try {
       const response = await axios.get<TestQuestion | string>(
-        "http://127.0.0.1:8000/quiz/quiz_questions", {withCredentials: true}
+        `http://127.0.0.1:8000/quiz/quiz_questions?email=${email}`, {withCredentials: true}
       );
       if (response.data === "null") {
         set({ no_quiz_found: "Something went wrong! No Quiz Found" });
       } else {
-        const { questions, email } = response.data as TestQuestion; //Type assertion is used in this case of destructuringW
+        const { questions, email, title } = response.data as TestQuestion; //Type assertion is used in this case of destructuringW
         set(() => ({
-          test_questions: { questions: questions, email: email },
+          test_questions: { questions: questions, email: email, title: title },
           no_quiz_found: "",
           questions: questions,
         }));
@@ -130,20 +132,11 @@ export const useStore = create<QuizzyStore>((set) => ({
       console.error("Error fetching questions:", error);
     }
   },
-  // getQuestionsAsync: async () => {
-  //   try {
-  //   const response = await axios.get<Question[]>(
-  //       " http://localhost:3000/Questions"
-  //     );
-  //   set({ questions: response.data})
-  // }catch (error){
-  //   console.error("Error fetching questions:", error);
 
-  // }} ,
-  checkQuestionAttemptAsync: async (question: string) => {
+  checkQuestionAttemptAsync: async (question_index: number) => {
     try {
       const response = await axios.get<boolean | string>(
-        `http://127.0.0.1:8000/attempted-question?question=${question}`
+        `http://127.0.0.1:8000/quiz/attempted-question?question_index=${question_index}`, {withCredentials: true}
       );
       set({ currentOption: response.data });
     } catch (error) {
@@ -152,18 +145,17 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   currentOption: false,
   currentAnswer: "",
-  getResultAsync: async (body) => {
+  getResultAsync: async (result_body) => {
     try {
       const response = await axios.post<Result>(
-        "http://127.0.0.1:8000/result",
-        body
+        "http://127.0.0.1:8000/quiz/result",
+        result_body, {withCredentials: true} 
       );
-      set({ result: response.data.result });
+      set({ result: response.data});
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
   },
-  result: "",
   logOutUserAsync: async () => {
     const response = await axios.get("http://127.0.0.1:8000/auth/logout", {withCredentials: true})
     if (response.status === 200){
@@ -172,3 +164,7 @@ export const useStore = create<QuizzyStore>((set) => ({
     }
   }
 }));
+
+useStore.subscribe((state) => {
+  console.log("State updated:", state);
+});
