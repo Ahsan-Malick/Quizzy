@@ -12,7 +12,12 @@ type TestQuestion = {
   title: string;
   questions: Question[];
   email: string;
+  number_of_questions: number;
+  quiztime_set: number;
+  difficulty: string;
+  category: string;
 };
+
 type Result = {
   title: string;
   total_questions: number;
@@ -23,6 +28,7 @@ type User = {
   lastname: string;
   username: string;
   email: string;
+  avatar: string;
   disabled: boolean
 };
 
@@ -35,7 +41,8 @@ type QuizzyStore = {
   result: Result;
   isLoggedIn: boolean;
   userDetail: User | null;
-  getQuestionsAsync: (email: string) => Promise<void>;
+  quizTime: number;
+  getQuestionsAsync: (email: string) => Promise<TestQuestion|null>;
   checkQuestionAttemptAsync: (question_index: number) => Promise<void>;
   getResultAsync: (result_body: { email: string, score: string|number, total_questions: number }) => Promise<void>;
   checkUsernameAsync: (body: { username: string }) => Promise<boolean>;
@@ -44,15 +51,19 @@ type QuizzyStore = {
   signInUserAsync: (data: object) => Promise<void>;
   validateAuthAsync: () => Promise<number | undefined>;
   logOutUserAsync: () => Promise<void>;
+  resetQuestions: () => void;
+
+  
 };
 
 export const useStore = create<QuizzyStore>((set) => ({
   questions: [],
   isLoggedIn: false,
   userDetail: null,
-  test_questions: { questions: [], email: "", title: "" },
+  test_questions: { questions: [], email: "", title: "", difficulty: "", category: "", number_of_questions: 0, quiztime_set: 0 },
   result: { title: "", total_questions: 0, total_correct_answers: 0 },
   no_quiz_found: "",
+  quizTime: 0,
   validateAuthAsync: async () => {
     const response = await axios.get("http://127.0.0.1:8000/auth/validate", {
       withCredentials: true,
@@ -88,7 +99,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   signUpUserAsync: async (data) => {
     try {
-      const response = await axios.post<User>(
+      const response = await axios.post(
         "http://127.0.0.1:8000/auth/signup",
         data,
         {
@@ -98,7 +109,7 @@ export const useStore = create<QuizzyStore>((set) => ({
           withCredentials: true, // To include cookies in the request
         }
       );
-      set({userDetail: response.data})
+      set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
     } catch (error) {
       alert(error) //fix it
@@ -106,7 +117,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   signInUserAsync: async (data) => {
     try {
-      const response = await axios.post<User>("http://127.0.0.1:8000/auth/signin", data, {headers:{"Content-Type":"application/x-www-form-urlencoded"}, withCredentials: true})
+      const response = await axios.post("http://127.0.0.1:8000/auth/signin", data, {headers:{"Content-Type":"application/x-www-form-urlencoded"}, withCredentials: true})
       set({userDetail: response.data})
       set(()=>({isLoggedIn: true}))
     } catch (error) {
@@ -115,18 +126,19 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   getQuestionsAsync: async (email: string) => {
     try {
-      const response = await axios.get<TestQuestion | string>(
+      const response = await axios.get(
         `http://127.0.0.1:8000/quiz/quiz_questions?email=${email}`, {withCredentials: true}
       );
       if (response.data === "null") {
         set({ no_quiz_found: "Something went wrong! No Quiz Found" });
       } else {
-        const { questions, email, title } = response.data as TestQuestion; //Type assertion is used in this case of destructuringW
+        const { questions, email, title, difficulty, category, number_of_questions, quiztime_set } = response.data as TestQuestion; //Type assertion is used in this case of destructuringW
         set(() => ({
-          test_questions: { questions: questions, email: email, title: title },
+          test_questions: { questions: questions, email: email, title: title, difficulty: difficulty, category: category, number_of_questions: number_of_questions, quiztime_set: quiztime_set },
           no_quiz_found: "",
           questions: questions,
         }));
+        return response.data;
       }
     } catch (error) {
       console.error("Error fetching questions:", error);
@@ -156,6 +168,7 @@ export const useStore = create<QuizzyStore>((set) => ({
       console.error("Error fetching questions:", error);
     }
   },
+  resetQuestions: () => set({ questions: [] }),
   logOutUserAsync: async () => {
     const response = await axios.get("http://127.0.0.1:8000/auth/logout", {withCredentials: true})
     if (response.status === 200){
@@ -165,6 +178,6 @@ export const useStore = create<QuizzyStore>((set) => ({
   }
 }));
 
-useStore.subscribe((state) => {
-  console.log("State updated:", state);
-});
+// useStore.subscribe((state) => {
+//   console.log("State updated:", state);
+// });

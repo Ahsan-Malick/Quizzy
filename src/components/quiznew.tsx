@@ -17,11 +17,11 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "./ui/dialog";
-import { toast, Toaster } from "react-hot-toast";
+import { Bounce, ToastContainer, toast } from "react-toastify";
 import { useStore } from "../store/store";
 import axios from "axios";
 import NoQuestionsPage from "./NoQuestionsPage";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // Mock quiz data with 50 questions for demonstration
 const quizData = Array.from({ length: 50 }, (_, i) => ({
@@ -62,21 +62,20 @@ type Record = {
 };
 
 export default function EnhancedQuizEnvironment() {
-  //   const [userAnswers, setUserAnswers] = useState<(string | null)[]>(Array(quizData.length).fill(null))
-  const [timeLeft, setTimeLeft] = useState<number>(3600); // 60 minutes in seconds
+  const navigate = useNavigate();
+  const location = useLocation();
+  const quizTime = location.state?.quizTime || 0;
   const [showWarning, setShowWarning] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  const [unattemptedQuestions, setUnattemptedQuestions] = useState<number[]>(
-    []
-  );
+  
 
   const getQuestionsAsync = useStore((state) => state.getQuestionsAsync);
   const getResultsAsync = useStore((state) => state.getResultAsync);
- 
+  const resetQuestions = useStore((state)=>state.resetQuestions)
 
   const questionsList: Question[] = useStore((state) => state.questions); //fetching questions from store
   const quizTitle: string = useStore((state) => state.test_questions.title);
+  const duration: number = useStore((state)=>state.test_questions.quiztime_set)
 
   const [userAnswers, setUserAnswers] = useState<string[]>([]); // 5 minutes in seconds
   const [isQuizSubmitted, setIsQuizSubmitted] = useState<boolean>(false);
@@ -91,23 +90,45 @@ export default function EnhancedQuizEnvironment() {
     (question) => !attemptedQuestions.includes(question)
   );
 
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+    console.log()
+    const fetchQuizDetails = async () => {
+      const startQuizData = { email: userDetail?.email, duration: duration*60 };
+      console.log(duration)
+      const response = await axios.post(
+        `http://127.0.0.1:8000/quiz/start-quiz`,
+        startQuizData,
+        { withCredentials: true }
+      ); // Example duration: 5 minutes
+      const endTime = new Date(response.data.end_time).getTime();
+      const currentTime = new Date().getTime();
+      const remainingTime = Math.max(
+        Math.floor((endTime - currentTime) / 1000),
+        0
+      );
+      setTimeLeft(remainingTime);
+    };
+
+    fetchQuizDetails();
+  }, []);
+
+  useEffect(() => {
+    if (timeLeft === null) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
-    const fetchQuestions = async () => {
-      try {
-        await getQuestionsAsync(userDetail?.email || "");
-        // await checkQuestionAttemptAsync(currentQuestion);
-      } catch (error) {
-        console.error("Error fetching questions:", error);
-      }
-    };
-    fetchQuestions();
-
-    return () => clearInterval(timer);
-  }, []);
+    return () => clearInterval(interval);
+  }, [timeLeft]);
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -115,15 +136,20 @@ export default function EnhancedQuizEnvironment() {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
+  //Submitting the final quiz
   const handleSubmit = async () => {
-    const result_body = {email: userDetail?.email || "", score: "0", total_questions: questionsList.length};
-    console.log(userDetail);
-    if (unattemptedQuest.length > 0) {
+    const result_body = {
+      email: userDetail?.email || "",
+      score: "0",
+      total_questions: questionsList.length,
+    };
+    if (unattemptedQuest.length > 0 && timeLeft !== null && timeLeft > 0) {
       setShowWarning(true);
     } else {
       await getResultsAsync(result_body);
+      resetQuestions();
+      navigate("/result");
       
-      console.log("Quiz submitted:", userAnswers);
     }
   };
 
@@ -168,23 +194,9 @@ export default function EnhancedQuizEnvironment() {
     }
   };
 
-  const handleSubmitQuiz = () => {
-    //will set logic to show error in last few mins "Please make sure you attempt all the question"
-    if (userAnswers.some((answer) => answer === "")) {
-      toast.error("Please answer all questions before submitting!");
-      return;
-    }
-    setIsQuizSubmitted(true);
-    // Here you would typically send the answers to a server for grading
-    toast.success("Quiz submitted successfully!");
-  };
-
-  const isAllQuestionsAnswered = userAnswers.every((answer) => answer !== "");
-
   useEffect(() => {
     const fetch = async () => {
       const answer = { email: userDetail?.email };
-
       //checks if the current question is right or wrong and then submit the answer to database
       try {
         const response = await axios.post(
@@ -200,17 +212,63 @@ export default function EnhancedQuizEnvironment() {
     fetch();
   }, []);
 
+  useEffect(() => {
+    if (timeLeft === 0) {
+      handleSubmit();
+    } else if (timeLeft === 59) {
+      toast.warn("⚠️ Hurry up! Less than 1 minute left", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  }, [timeLeft]);
+
+  //to fetch questions
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        await getQuestionsAsync(userDetail?.email || "");
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
+
   return (
     <>
       {questionsList.length > 0 ? (
         <div className="min-h-screen bg-gray-100 p-4 flex flex-col ">
+          <ToastContainer
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Bounce}
+          />
           <div className="max-w-4xl w-full mx-auto bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
             <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
               <h1 className="text-2xl font-bold text-gray-800">{quizTitle}</h1>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full">
                   <Clock className="mr-2 h-5 w-5" />
-                  <span className="font-semibold">{formatTime(timeLeft)}</span>
+                  <span className="font-semibold">
+                    {timeLeft !== null && formatTime(timeLeft)}
+                  </span>
                 </div>
                 <Dialog>
                   <DialogTrigger asChild>
@@ -250,24 +308,19 @@ export default function EnhancedQuizEnvironment() {
                     </ScrollArea>
                   </DialogContent>
                 </Dialog>
-                
-                { submitted ? (
-                <Button
-                  
-                  className="bg-green-500 hover:bg-green-600"
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" /> View Result
-                </Button>): (
-                  <Link to="/result">
+
+                {submitted ? (
+                  <Button className="bg-green-500 hover:bg-green-600">
+                    <CheckCircle className="mr-2 h-4 w-4" /> View Result
+                  </Button>
+                ) : (
                   <Button
-                  onClick={handleSubmit}
-                  className="bg-green-500 hover:bg-green-600"
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" /> Submit Quiz
-                </Button>
-                </Link>)
-}
-                
+                    onClick={handleSubmit}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" /> Submit Quiz
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -370,7 +423,9 @@ export default function EnhancedQuizEnvironment() {
             </DialogContent>
           </Dialog>
         </div>
-      ): <NoQuestionsPage/>}
+      ) : (
+        <NoQuestionsPage />
+      )}
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import jsPDF from "jspdf";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Book,
@@ -34,7 +35,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import axios from "axios";
 import { useStore } from "../store/store";
 import { Label } from "./ui/label";
-import { toast, Toaster } from "react-hot-toast";
+import { Bounce, ToastContainer, toast } from "react-toastify";
 import {
   Select,
   SelectTrigger,
@@ -42,6 +43,8 @@ import {
   SelectItem,
   SelectContent,
 } from "./ui/select";
+import Avatar from "../utils/avatar";
+import { capitalizeFirstLetter } from "../utils/capitalize";
 import { Link } from "react-router-dom";
 
 // Mock user data
@@ -69,6 +72,35 @@ const user = {
   ],
 };
 
+type Question = {
+  id: string;
+  question: string;
+  options: string[];
+  answer: string;
+};
+
+type TestQuestion = {
+  title: string;
+  questions: Question[];
+  email: string;
+  number_of_questions: number;
+  quiztime_set: number;
+  difficulty: string;
+  category: string;
+
+};
+
+const quizCategories = [
+  { value: "science", label: "Science" },
+  { value: "technology", label: "Technology" },
+  { value: "mathematics", label: "Mathematics" },
+  { value: "philosophy", label: "Philosophy" },
+  { value: "religion", label: "Religion" },
+  { value: "entertainment", label: "Entertainment" },
+  { value: "history", label: "History" },
+  { value: "other", label: "Other" },
+];
+
 export default function UserWelcome() {
   const [activeTab, setActiveTab] = useState<any>("dashboard");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -77,6 +109,10 @@ export default function UserWelcome() {
   const [quizTitle, setQuizTitle] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [numQuestions, setNumQuestions] = useState("");
+  const [download, setDownload] = useState<boolean>(false);
+  const [quizData, setQuizData] = useState<TestQuestion|null>(null);
+  const [category, setCategory] = useState<string>("");
+  const [quiztime, setQuizTime] = useState("");
   
 
   const getQuestionsAsync = useStore((state) => state.getQuestionsAsync);
@@ -93,17 +129,32 @@ export default function UserWelcome() {
 
   //OnChanging the file is uploaded
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const MAX_FILE_SIZE = 20 * 1024 * 1024; //20MB File size limit
     const assertFile = e.target as HTMLInputElement;
     const file = assertFile.files;
     if (file) {
-      setUploadedFile(file[0]);
+      const selectedFile = file[0];
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        // Show toast warning if file size exceeds the limit
+        toast.warn("File size exceeds the 20MB limit!", {
+          position: "top-center",
+          autoClose: 3000,
+        });
+      } else {
+        // Proceed with file upload
+        setUploadedFile(selectedFile);
+        toast.success("Uploaded Successfully", {
+          position: "top-center",
+          autoClose: 1000,
+        });
+      }
     } else {
       alert("Something went wrong, try again");
     }
   };
 
   const uploadFile = async () => {
-    if (uploadedFile && quizTitle && difficulty && numQuestions) {
+    if (uploadedFile && quizTitle && difficulty && numQuestions&& category&&quiztime) {
       // Check if a file has been selected *before* creating FormData
       const formData = new FormData();
       formData.append("file", uploadedFile);
@@ -111,10 +162,12 @@ export default function UserWelcome() {
       formData.append("title", quizTitle);
       formData.append("difficulty", difficulty);
       formData.append("numQuestions", numQuestions);
+      formData.append("category", category);
+      formData.append("quiztime", quiztime);
 
       try {
         setGeneratingQuiz(true);
-        const response = await axios.post(
+       await axios.post(
           "http://127.0.0.1:8000/quiz/uploadfile/",
           formData,
           {
@@ -122,29 +175,131 @@ export default function UserWelcome() {
             withCredentials: true,
           }
         );
-        await getQuestionsAsync(userDetails?.email || "");
+        const data = await getQuestionsAsync(userDetails?.email || "");
+        setQuizData(data);
         setGeneratingQuiz(false);
         setQuizGenerated(true);
-        // ... process successful response
+        setDownload(true);
       } catch (error) {
         alert(error);
       }
     } else {
       // Handle the case where no file is selected
-      toast.error("Make sure all fields are filled out and a file is uploaded"); // Or another appropriate action.
+      toast.error("Make sure all fields are filled out"); // Or another appropriate action.
     }
   };
 
-  const generateQuiz = () => {
-    if (uploadedFile) {
-      setGeneratingQuiz(true);
-      // Simulating quiz generation process
-      setTimeout(() => {
-        setGeneratingQuiz(false);
-        setUploadedFile(null);
-        // Here you would typically handle the generated quiz, e.g., navigate to a new page or show a success message
-      }, 3000);
-    }
+  const downloadPdf = () => {
+    const doc = new jsPDF();
+    const pageHeight = doc.internal.pageSize.height; // Page height
+    const lineHeight = 10; // Space between lines
+    const margin = 10; // Left margin
+    const bottomMargin = 20; // Bottom margin to avoid overflow
+    let yOffset = 20; // Initial vertical offset
+
+    const difficulty = capitalizeFirstLetter(quizData?.difficulty || "");
+    const category = capitalizeFirstLetter(quizData?.category || "");
+
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+  
+    // Name
+    doc.text("Name:________________", margin, yOffset);
+    
+  
+    // Date
+    doc.text("Date: ________________", 150, yOffset);
+    yOffset += 12;
+  
+  
+    // Difficulty Level
+    doc.text(`Difficulty: ${difficulty || "Not Specified"}`, margin, yOffset);
+    
+   
+  
+    // Category
+    doc.text(`Category: ${category || "General"}`, 150, yOffset);
+    yOffset += 10;
+
+
+
+    // Disclaimer
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.text(
+      "Disclaimer: This quiz has been auto-generated based on the documents provided by the user. " +
+        "The answer key is generated based on the provided content and is believed to be accurate. " +
+        "However, the creator assumes no liability for any inaccuracies or misinterpretations.",
+      margin,
+      yOffset,
+      { maxWidth: 180 } // Ensures the text wraps within the page width
+    );
+    yOffset += 20; // Add some spacing after the disclaimer
+
+    // Add a title for the quiz and make it bold
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Quiz", margin, yOffset);
+    yOffset += 10;
+
+    // Add questions with options
+    doc.setFont("helvetica", "normal");
+    quizData?.questions.forEach((question: Question, index: number) => {
+      // Calculate required space for the question and all its options
+      const questionText = `${index + 1}. ${question.question}`;
+      const questionLines = doc.splitTextToSize(questionText, 180); // Wrap text to fit the page width
+      const questionHeight = questionLines.length * lineHeight;
+
+      const optionsHeight = question.options.length * lineHeight;
+      const totalHeight = questionHeight + optionsHeight + 5; // Extra padding between questions
+
+      // Check if there's enough space on the current page; if not, add a new page
+      if (yOffset + totalHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        yOffset = margin;
+      }
+
+      // Render the question text
+      questionLines.forEach((line: any) => {
+        doc.text(line, margin, yOffset);
+        yOffset += lineHeight;
+      });
+
+      // Render the options
+      question.options.forEach((option: string, optIndex: number) => {
+        const optionText = `  ${String.fromCharCode(65 + optIndex)}. ${option}`;
+        doc.text(optionText, margin + 5, yOffset);
+        yOffset += lineHeight;
+      });
+
+      yOffset += 5; // Add extra spacing between questions
+    });
+
+    // Move to a new page for the Answer Key
+    doc.addPage();
+    yOffset = margin;
+
+    // Add Answer Key title
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Answer Key", margin, yOffset);
+    yOffset += 10;
+
+    // Add the Answer Key
+    doc.setFont("helvetica", "normal");
+    quizData?.questions.forEach((question: Question, index: number) => {
+      const answerText = `${index + 1}. ${question.answer}`;
+      if (yOffset + lineHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        yOffset = margin;
+      }
+      doc.text(answerText, margin, yOffset);
+      yOffset += lineHeight;
+    });
+
+    // Save the PDF
+    doc.save(`${quizTitle}.pdf`);
   };
 
   type Tab = {
@@ -159,7 +314,7 @@ export default function UserWelcome() {
         transition={{ duration: 0.3 }}
       >
         <h2 className="text-3xl font-bold mb-6 text-indigo-800">
-          Welcome back, {userDetails?.firstname} {userDetails?.lastname}!
+          Welcome, {userDetails?.firstname} {userDetails?.lastname}!
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <motion.div
@@ -168,17 +323,47 @@ export default function UserWelcome() {
             transition={{ duration: 0.2 }}
           >
             <h3 className="font-semibold text-xl mb-3">Quick Stats</h3>
-            <p className="text-2xl font-bold mb-2">27 Quizzes Taken</p>
-            <p className="text-lg">Average Score: 88%</p>
+            <div className="space-y-2">
+              <p className="flex justify-between items-center">
+                <span>
+                  <Book className="inline mr-2" size={18} /> Quizzes Taken:
+                </span>
+                <span className="text-2xl font-bold">27</span>
+              </p>
+              <p className="flex justify-between items-center">
+                <span>
+                  <Brain className="inline mr-2" size={18} /> Popular Category:
+                </span>
+                <span className="text-2xl font-bold">Religion</span>
+              </p>
+              <p className="flex justify-between items-center">
+                <span>
+                  <Clock className="inline mr-2" size={18} /> This Week:
+                </span>
+                <span className="text-2xl font-bold">4 Quizzes</span>
+              </p>
+            </div>
           </motion.div>
           <motion.div
             className="bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-xl text-white shadow-lg"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
           >
-            <h3 className="font-semibold text-xl mb-3">Next Goal</h3>
-            <p className="text-lg mb-2">Complete 5 more quizzes to unlock:</p>
-            <p className="text-2xl font-bold">"Quiz Enthusiast" badge!</p>
+            <h3 className="font-semibold text-xl mb-3">Quiz Insights</h3>
+            <ul className="space-y-2">
+              <li className="flex justify-between items-center">
+                <span>Highest Score:</span>
+                <span className="font-bold">95%</span>
+              </li>
+              <li className="flex justify-between items-center">
+                <span>Average Score:</span>
+                <span className="font-bold">82%</span>
+              </li>
+              <li className="flex justify-between items-center">
+                <span>Total Time Spent:</span>
+                <span className="font-bold">14h 30m</span>
+              </li>
+            </ul>
           </motion.div>
         </div>
         <h3 className="text-2xl font-semibold mb-4 text-indigo-800">
@@ -260,79 +445,130 @@ export default function UserWelcome() {
         <h2 className="text-3xl font-bold mb-6 text-indigo-800">
           Create a New Quiz
         </h2>
+        
         <div className="space-y-6">
-          <div className="">
-            <div className="mb-4">
-              <Label
-                htmlFor="quizTitle"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Quiz Title
-              </Label>
-              <Input
-                type="text"
-                id="quizTitle"
-                value={quizTitle}
-                onChange={handleQuizTitleChange}
-                placeholder="Enter quiz title"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-              />
+          <div className=" flex flex-col" id="quiz-info">
+            <div className="flex justify-around" id="info-1">
+              <div className="space-y-2 mb-4 w-[40%]">
+                <Label
+                  htmlFor="quizTitle"
+                  className="font-semibold"
+                >
+                  Quiz Title
+                </Label>
+                <Input
+                  type="text"
+                  id="quizTitle"
+                  value={quizTitle}
+                  onChange={handleQuizTitleChange}
+                  placeholder="Enter the quiz title"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div className="space-y-2 mb-4 w-[40%]">
+                <Label className="font-semibold" htmlFor="numQuestions">Number of Questions</Label>
+                <Input
+                  id="numQuestions"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={numQuestions}
+                  placeholder="Enter the number of questions"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (value > 100) {
+                      toast.error("Number of questions cannot exceed 100");
+                      setNumQuestions("100");
+                    } else {
+                      setNumQuestions(e.target.value);
+                    }
+                  }}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="numQuestions">Number of Questions</Label>
-              <Input
-                id="numQuestions"
-                type="number"
-                min="1"
-                max="100"
-                value={numQuestions}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value);
-                  if (value > 100) {
-                    toast.error("Number of questions cannot exceed 100");
-                    setNumQuestions("100");
-                  } else {
-                    setNumQuestions(e.target.value);
-                  }
-                }}
-              />
+
+            <div className="flex justify-around" id="info-2">
+              <div className="space-y-2 mb-4  w-[40%]">
+                <Label className="font-semibold" htmlFor="difficulty">Difficulty Level</Label>
+                <Select
+                  value={difficulty}
+                  onValueChange={(value) => setDifficulty(value)}
+                >
+                  <SelectTrigger id="difficulty">
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem
+                      className="cursor-pointer hover:bg-indigo-100"
+                      value="easy"
+                    >
+                      Easy
+                    </SelectItem>
+                    <SelectItem
+                      className="cursor-pointer hover:bg-indigo-100"
+                      value="medium"
+                    >
+                      Medium
+                    </SelectItem>
+                    <SelectItem
+                      className="cursor-pointer hover:bg-indigo-100"
+                      value="hard"
+                    >
+                      Hard
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 w-[40%]">
+                <Label className="font-semibold" htmlFor="category">Select Category</Label>
+                <Select
+                  value={category}
+                  onValueChange={(value) => setCategory(value)}
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white max-h-60">
+                    {quizCategories.map((category) => (
+                    <SelectItem
+                      className="cursor-pointer hover:bg-indigo-100"
+                      value={category.value}
+                    >
+                      {category.label}
+                    </SelectItem>
+                    ))}
+              </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="difficulty">Difficulty Level</Label>
-              <Select
-                value={difficulty}
-                onValueChange={(value) => setDifficulty(value)}
-              >
-                <SelectTrigger id="difficulty">
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem
-                    className="cursor-pointer hover:bg-indigo-100"
-                    value="easy"
-                  >
-                    Easy
-                  </SelectItem>
-                  <SelectItem
-                    className="cursor-pointer hover:bg-indigo-100"
-                    value="medium"
-                  >
-                    Medium
-                  </SelectItem>
-                  <SelectItem
-                    className="cursor-pointer hover:bg-indigo-100"
-                    value="hard"
-                  >
-                    Hard
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
+            <div className=" flex justify-around" id="quiztime">
+            <div className="space-y-2 mb-4  w-[40%]">
+                <Label className="font-semibold" htmlFor="numQuestions">Quiz Time(mins)</Label>
+                <Input
+                  id="quizTime"
+                  type="number"
+                  min="2"
+                  max="1000"
+                  value={quiztime}
+                  placeholder="Enter the time allowed for the quiz"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (value > 1000) {
+                      toast.error("Quiz Time cannot exceed 1000");
+                      setQuizTime("100");
+                    } else {
+                      setQuizTime(e.target.value);
+                    }
+                  }}
+                />
+              </div>
+              </div>
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <h3 className="text-xl font-semibold mb-4 text-indigo-700">
-              Upload a Document
+              Upload a Document <span className="text-gray-400 text-sm">File size must not exceed 25MB</span>
             </h3>
             <p className="text-gray-600 mb-4">
               Upload a document and our AI will generate a quiz based on its
@@ -350,7 +586,7 @@ export default function UserWelcome() {
                     drag and drop
                   </p>
                   <p className="text-xs text-indigo-500">
-                    PDF, DOCX, or TXT (MAX. 10MB)
+                    PDF, DOCX, or TXT (MAX. 20MB)
                   </p>
                 </div>
                 <input
@@ -376,7 +612,7 @@ export default function UserWelcome() {
             )}
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center space-x-2">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 disabled={!uploadedFile || generatingQuiz}
@@ -389,7 +625,7 @@ export default function UserWelcome() {
                   </>
                 ) : quizgenerated ? (
                   <>
-                    <Link to="/quiz">
+                    <Link to="/quiz" state={{quizTime: Number(quiztime)}}>
                       <div className="flex">
                         <Rocket className="mr-2 h-5 w-5" />
                         Let's Go!
@@ -397,21 +633,29 @@ export default function UserWelcome() {
                     </Link>
                   </>
                 ) : (
-                    <>
-                      <div className="flex" onClick={uploadFile}>
-                        <Zap className="mr-2 h-5 w-5" />
-                        Generate Quiz
-                      </div>
-                    </>
-                  
+                  <>
+                    <div className="flex" onClick={uploadFile}>
+                      <Zap className="mr-2 h-5 w-5" />
+                      Generate Quiz
+                    </div>
+                  </>
                 )}
               </Button>
             </motion.div>
+            <motion.div>
+              <Button
+                disabled={!download}
+                onClick={downloadPdf}
+                className="bg-green-500 text-white rounded-xl shadow-lg"
+              >
+                Download Quiz
+              </Button>
+            </motion.div>
           </div>
-          <p className="text-sm text-indigo-600 bg-indigo-50 p-4 rounded-lg">
+          {/* <p className="text-sm text-indigo-600 bg-indigo-50 p-4 rounded-lg">
             Tip: You can also manually add questions after the AI generates the
             initial quiz!
-          </p>
+          </p> */}
         </div>
       </motion.div>
     ),
@@ -525,7 +769,19 @@ export default function UserWelcome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4">
-      <Toaster position="top-center" />
+      <ToastContainer
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar={true}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Bounce}
+          />
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-6">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
@@ -533,15 +789,8 @@ export default function UserWelcome() {
           </h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="relative h-12 w-12 rounded-full"
-              >
-                hello
-                {/* <Avatar className="h-12 w-12">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>AJ</AvatarFallback>
-                </Avatar> */}
+              <Button variant="ghost" className="">
+                <Avatar initials={userDetails?.avatar || ""}></Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent

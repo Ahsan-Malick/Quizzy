@@ -112,6 +112,7 @@ export default function QuizResultPage() {
                   <span className="text-gray-600">Incorrect Answers</span>
                   <span className="font-bold text-red-600">{totalQuestions - score}</span>
                 </li>
+                
               </ul>
             </div>
           </CardContent>
