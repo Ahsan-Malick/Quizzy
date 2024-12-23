@@ -27,6 +27,7 @@ export default function SignIn() {
   const { register, handleSubmit, reset } = useForm<FormValues>();
 
   const signInUserAsync = useStore((state)=>state.signInUserAsync)
+  const userPerformanceAsync = useStore((state)=>state.userPerformanceAsync)
 
   const userData = useStore((state)=>state.userDetail)
 

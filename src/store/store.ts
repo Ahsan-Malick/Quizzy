@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import axios from "axios";
 
-type Question = {
+export type Question = {
   id: string;
   question: string;
   options: string[];
   answer: string;
 };
 
-type TestQuestion = {
+export type TestQuestion = {
   title: string;
   questions: Question[];
   email: string;
@@ -23,7 +23,7 @@ type Result = {
   total_questions: number;
   total_correct_answers: number;
 };
-type User = {
+export type User = {
   firstname: string;
   lastname: string;
   username: string;
@@ -31,6 +31,31 @@ type User = {
   avatar: string;
   disabled: boolean
 };
+
+export type ResultBody = {
+  email: string,
+  quiz_no: number,
+  title: string,
+  category: string,
+  score: string|number,
+  total_questions: number,
+  timestamp: null
+}
+
+export type UserPerformance = {
+  email: string;
+  quizzes_taken: number;
+  highest_score: number;
+  lowest_score: number;
+  average_score: number;
+  popular_category: string | null;
+}
+
+export type RecentQuizzes = {
+  title: string,
+  quiz_no: number,
+  score_percentage: number
+}
 
 type QuizzyStore = {
   questions: Question[];
@@ -42,18 +67,19 @@ type QuizzyStore = {
   isLoggedIn: boolean;
   userDetail: User | null;
   quizTime: number;
+  userPerformance: UserPerformance;
+  recent_quizzes: RecentQuizzes[] ;
+  userPerformanceAsync: (email: string)=>Promise<void>;
   getQuestionsAsync: (email: string) => Promise<TestQuestion|null>;
   checkQuestionAttemptAsync: (question_index: number) => Promise<void>;
-  getResultAsync: (result_body: { email: string, score: string|number, total_questions: number }) => Promise<void>;
+  getResultAsync: (result_body: ResultBody) => Promise<void>;
   checkUsernameAsync: (body: { username: string }) => Promise<boolean>;
   checkEmailAsync: (body: { email: string }) => Promise<boolean>;
   signUpUserAsync: (data: object) => Promise<void>;
   signInUserAsync: (data: object) => Promise<void>;
   validateAuthAsync: () => Promise<number | undefined>;
   logOutUserAsync: () => Promise<void>;
-  resetQuestions: () => void;
-
-  
+  resetQuestions: () => void; 
 };
 
 export const useStore = create<QuizzyStore>((set) => ({
@@ -62,15 +88,25 @@ export const useStore = create<QuizzyStore>((set) => ({
   userDetail: null,
   test_questions: { questions: [], email: "", title: "", difficulty: "", category: "", number_of_questions: 0, quiztime_set: 0 },
   result: { title: "", total_questions: 0, total_correct_answers: 0 },
+  recent_quizzes: [],
   no_quiz_found: "",
   quizTime: 0,
+  userPerformance: {
+    email: "",
+    quizzes_taken: 0,
+    highest_score: 0,
+    lowest_score: 0,
+    average_score: 0,
+    popular_category: null,
+  },
   validateAuthAsync: async () => {
     const response = await axios.get("http://127.0.0.1:8000/auth/validate", {
       withCredentials: true,
     });
     if (response){
     set({isLoggedIn: true});
-    set(()=>({userDetail: response.data}))
+    set(()=>({userDetail: response.data as User}))
+
     return response.status
     }
     return undefined
@@ -111,6 +147,8 @@ export const useStore = create<QuizzyStore>((set) => ({
       );
       set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
+  
+  
     } catch (error) {
       alert(error) //fix it
     }
@@ -118,7 +156,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   signInUserAsync: async (data) => {
     try {
       const response = await axios.post("http://127.0.0.1:8000/auth/signin", data, {headers:{"Content-Type":"application/x-www-form-urlencoded"}, withCredentials: true})
-      set({userDetail: response.data})
+      set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
     } catch (error) {
       alert(error)
@@ -159,14 +197,23 @@ export const useStore = create<QuizzyStore>((set) => ({
   currentAnswer: "",
   getResultAsync: async (result_body) => {
     try {
-      const response = await axios.post<Result>(
+      const response = await axios.post(
         "http://127.0.0.1:8000/quiz/result",
         result_body, {withCredentials: true} 
       );
-      set({ result: response.data});
+      set({ result: response.data as Result});
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
+  },
+  userPerformanceAsync: async(email: string)=>{
+    const response = await axios.post(`http://127.0.0.1:8000/quiz/performance?email=${email}`,{}, {withCredentials: true});
+    const {response_data, recent_quizzes} = response.data
+    console.log(recent_quizzes)
+    set({userPerformance: response_data})
+    set({recent_quizzes: recent_quizzes})
+   
+    
   },
   resetQuestions: () => set({ questions: [] }),
   logOutUserAsync: async () => {

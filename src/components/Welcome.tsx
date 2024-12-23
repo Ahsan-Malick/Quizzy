@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -98,6 +98,7 @@ const quizCategories = [
   { value: "religion", label: "Religion" },
   { value: "entertainment", label: "Entertainment" },
   { value: "history", label: "History" },
+  { value: "education", label: "Education" },
   { value: "other", label: "Other" },
 ];
 
@@ -113,11 +114,16 @@ export default function UserWelcome() {
   const [quizData, setQuizData] = useState<TestQuestion|null>(null);
   const [category, setCategory] = useState<string>("");
   const [quiztime, setQuizTime] = useState("");
+  const [checkUpload, setCheckUpload] = useState<boolean>(false)
   
 
   const getQuestionsAsync = useStore((state) => state.getQuestionsAsync);
+  const userPerformance = useStore((state)=>state.userPerformance);
   const logOutUserAsync = useStore((state) => state.logOutUserAsync);
   const userDetails = useStore((state) => state.userDetail);
+  const recentQuizzes = useStore((state)=>state.recent_quizzes)
+  console.log(recentQuizzes)
+  
 
   const handleQuizTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuizTitle(e.target.value);
@@ -143,6 +149,7 @@ export default function UserWelcome() {
       } else {
         // Proceed with file upload
         setUploadedFile(selectedFile);
+        setCheckUpload(true)
         toast.success("Uploaded Successfully", {
           position: "top-center",
           autoClose: 1000,
@@ -302,6 +309,20 @@ export default function UserWelcome() {
     doc.save(`${quizTitle}.pdf`);
   };
 
+useEffect(()=>{
+  const fetch = async()=> {
+    const data = await getQuestionsAsync(userDetails?.email || "");
+    if(data){
+      setQuizGenerated(true);
+      setCheckUpload(true);
+      setGeneratingQuiz(false)
+    }
+    
+  }
+  fetch();
+},[])
+
+
   type Tab = {
     [key: string]: JSX.Element;
   };
@@ -328,19 +349,13 @@ export default function UserWelcome() {
                 <span>
                   <Book className="inline mr-2" size={18} /> Quizzes Taken:
                 </span>
-                <span className="text-2xl font-bold">27</span>
+                <span className="text-2xl font-bold">{userPerformance.quizzes_taken}</span>
               </p>
               <p className="flex justify-between items-center">
                 <span>
                   <Brain className="inline mr-2" size={18} /> Popular Category:
                 </span>
-                <span className="text-2xl font-bold">Religion</span>
-              </p>
-              <p className="flex justify-between items-center">
-                <span>
-                  <Clock className="inline mr-2" size={18} /> This Week:
-                </span>
-                <span className="text-2xl font-bold">4 Quizzes</span>
+                <span className="text-2xl font-bold">{userPerformance.popular_category?userPerformance.popular_category:"N/A"}</span>
               </p>
             </div>
           </motion.div>
@@ -353,15 +368,15 @@ export default function UserWelcome() {
             <ul className="space-y-2">
               <li className="flex justify-between items-center">
                 <span>Highest Score:</span>
-                <span className="font-bold">95%</span>
+                <span className="font-bold">{userPerformance.highest_score}%</span>
+              </li>
+              <li className="flex justify-between items-center">
+                <span>Lowest Score:</span>
+                <span className="font-bold">{userPerformance.lowest_score}%</span>
               </li>
               <li className="flex justify-between items-center">
                 <span>Average Score:</span>
-                <span className="font-bold">82%</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <span>Total Time Spent:</span>
-                <span className="font-bold">14h 30m</span>
+                <span className="font-bold">{userPerformance.average_score.toFixed(2)}%</span>
               </li>
             </ul>
           </motion.div>
@@ -370,9 +385,9 @@ export default function UserWelcome() {
           Recent Quizzes
         </h3>
         <ul className="space-y-3">
-          {user.recentQuizzes.map((quiz) => (
+          {recentQuizzes?.map((quiz) => (
             <motion.li
-              key={quiz.id}
+              key={quiz.quiz_no}
               className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center"
               whileHover={{
                 scale: 1.02,
@@ -382,7 +397,7 @@ export default function UserWelcome() {
             >
               <span className="font-medium text-lg">{quiz.title}</span>
               <span className="text-2xl font-bold text-indigo-600">
-                {quiz.score}%
+                {quiz.score_percentage}%
               </span>
             </motion.li>
           ))}
@@ -479,6 +494,9 @@ export default function UserWelcome() {
                     if (value > 100) {
                       toast.error("Number of questions cannot exceed 100");
                       setNumQuestions("100");
+                    }
+                    else if(quizgenerated){
+                      toast.error("Quiz is Already Uploaded");
                     } else {
                       setNumQuestions(e.target.value);
                     }
@@ -492,7 +510,7 @@ export default function UserWelcome() {
                 <Label className="font-semibold" htmlFor="difficulty">Difficulty Level</Label>
                 <Select
                   value={difficulty}
-                  onValueChange={(value) => setDifficulty(value)}
+                  onValueChange={quizgenerated?()=>toast.error("Quiz is Already Uploaded"):(value) => setDifficulty(value)}
                 >
                   <SelectTrigger id="difficulty">
                     <SelectValue placeholder="Select difficulty" />
@@ -523,7 +541,7 @@ export default function UserWelcome() {
                 <Label className="font-semibold" htmlFor="category">Select Category</Label>
                 <Select
                   value={category}
-                  onValueChange={(value) => setCategory(value)}
+                  onValueChange={quizgenerated?()=>toast.error("Quiz is Already Uploaded"):(value) => setCategory(value)}
                 >
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Select category" />
@@ -557,6 +575,8 @@ export default function UserWelcome() {
                     if (value > 1000) {
                       toast.error("Quiz Time cannot exceed 1000");
                       setQuizTime("100");
+                    }else if(quizgenerated){
+                      toast.error("Quiz is Already Uploaded");
                     } else {
                       setQuizTime(e.target.value);
                     }
@@ -615,7 +635,7 @@ export default function UserWelcome() {
           <div className="flex justify-center space-x-2">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
-                disabled={!uploadedFile || generatingQuiz}
+                disabled={!checkUpload || generatingQuiz}
                 className="px-8 py-4 text-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl shadow-lg"
               >
                 {generatingQuiz ? (

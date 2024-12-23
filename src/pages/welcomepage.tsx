@@ -12,7 +12,8 @@ type Question = {
 
 const WelcomePage:React.FC = () => {
   const userDetails = useStore((state) => state.userDetail);
-  const questionsList: Question[] = useStore((state) => state.questions);
+  const userPerformanceAsync = useStore((state)=>state.userPerformanceAsync);
+  
 
   useEffect(() => {
     if (!userDetails) {
@@ -20,6 +21,10 @@ const WelcomePage:React.FC = () => {
       // Using window.location.href for redirection ensures a full page reload, which can be beneficial for clearing any existing state and ensuring that the user is fully redirected to the sign-in page.
       window.location.href = "/signin"; // Redirect to sign-in page if user details are not available
     }
+    const fetch = async()=>{
+      await userPerformanceAsync(userDetails?.email||"")
+    }
+    fetch();
   }, [userDetails]);
 
   return <UserWelcome/>;

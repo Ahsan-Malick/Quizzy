@@ -22,22 +22,18 @@ import { useStore } from "../store/store";
 import axios from "axios";
 import NoQuestionsPage from "./NoQuestionsPage";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ResultBody, TestQuestion, Question, User} from "../store/store"; //importing types
 
 // Mock quiz data with 50 questions for demonstration
-const quizData = Array.from({ length: 50 }, (_, i) => ({
+const quizDatax = Array.from({ length: 50 }, (_, i) => ({
   id: i + 1,
   question: `This is question ${i + 1}?`,
   options: ["Option A", "Option B", "Option C", "Option D"],
   correctAnswer: "Option A",
 }));
 
-// type question we are getting from data base after generation
-type Question = {
-  id: string;
-  question: string;
-  options: string[];
-  answer: string;
-};
+
+
 
 // type answer we will be sending to data base after choosing the option
 type Answer = {
@@ -48,18 +44,12 @@ type Answer = {
   option_index: number;
 };
 
-type User = {
-  firstname: string;
-  lastname: string;
-  username: string;
-  email: string;
-  disabled: boolean;
-};
 
 type Record = {
   question_index: number;
   option_index: number;
 };
+
 
 export default function EnhancedQuizEnvironment() {
   const navigate = useNavigate();
@@ -76,9 +66,9 @@ export default function EnhancedQuizEnvironment() {
   const questionsList: Question[] = useStore((state) => state.questions); //fetching questions from store
   const quizTitle: string = useStore((state) => state.test_questions.title);
   const duration: number = useStore((state)=>state.test_questions.quiztime_set)
+  const quizData: TestQuestion = useStore((state)=>state.test_questions)
 
   const [userAnswers, setUserAnswers] = useState<string[]>([]); // 5 minutes in seconds
-  const [isQuizSubmitted, setIsQuizSubmitted] = useState<boolean>(false);
 
   const userDetail: User | null = useStore((state) => state.userDetail);
   const [record, setRecord] = useState<Record[]>([]); //record of all the questions answered
@@ -138,10 +128,14 @@ export default function EnhancedQuizEnvironment() {
 
   //Submitting the final quiz
   const handleSubmit = async () => {
-    const result_body = {
+    const result_body: ResultBody = {
       email: userDetail?.email || "",
+      quiz_no: 1,
+      title: quizData.title,
+      category: quizData.category,
       score: "0",
       total_questions: questionsList.length,
+      timestamp: null
     };
     if (unattemptedQuest.length > 0 && timeLeft !== null && timeLeft > 0) {
       setShowWarning(true);
@@ -385,7 +379,7 @@ export default function EnhancedQuizEnvironment() {
             <div className="sticky bottom-0 z-10 bg-white border-t border-gray-200 p-4">
               <Progress
                 value={
-                  (userAnswers.filter(Boolean).length / quizData.length) * 100
+                  (userAnswers.filter(Boolean).length / quizDatax.length) * 100
                 }
                 className="w-full"
               />
