@@ -26,9 +26,10 @@ type Result = {
 export type User = {
   firstname: string;
   lastname: string;
-  username: string;
+  username: string|null;
   email: string;
   avatar: string;
+  is_google_user: boolean;
   disabled: boolean
 };
 
@@ -69,6 +70,7 @@ type QuizzyStore = {
   quizTime: number;
   userPerformance: UserPerformance;
   recent_quizzes: RecentQuizzes[] ;
+  is_google_user: boolean;
   userPerformanceAsync: (email: string)=>Promise<void>;
   getQuestionsAsync: (email: string) => Promise<TestQuestion|null>;
   checkQuestionAttemptAsync: (question_index: number) => Promise<void>;
@@ -77,7 +79,9 @@ type QuizzyStore = {
   checkEmailAsync: (body: { email: string }) => Promise<boolean>;
   signUpUserAsync: (data: object) => Promise<void>;
   signInUserAsync: (data: object) => Promise<void>;
+  gmailSignInUserAsync: (credentialToken: string) => Promise<void>;
   validateAuthAsync: () => Promise<number | undefined>;
+  gmailValidateAuthAsync: () => Promise<number | undefined>;
   logOutUserAsync: () => Promise<void>;
   resetQuestions: () => void; 
 };
@@ -85,6 +89,7 @@ type QuizzyStore = {
 export const useStore = create<QuizzyStore>((set) => ({
   questions: [],
   isLoggedIn: false,
+  is_google_user: false,
   userDetail: null,
   test_questions: { questions: [], email: "", title: "", difficulty: "", category: "", number_of_questions: 0, quiztime_set: 0 },
   result: { title: "", total_questions: 0, total_correct_answers: 0 },
@@ -101,6 +106,18 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   validateAuthAsync: async () => {
     const response = await axios.get("http://127.0.0.1:8000/auth/validate", {
+      withCredentials: true,
+    });
+    if (response){
+    set({isLoggedIn: true});
+    set(()=>({userDetail: response.data as User}))
+
+    return response.status
+    }
+    return undefined
+  },
+  gmailValidateAuthAsync: async () => {
+    const response = await axios.get("http://127.0.0.1:8000/auth/gmail-validate", {
       withCredentials: true,
     });
     if (response){
@@ -158,6 +175,17 @@ export const useStore = create<QuizzyStore>((set) => ({
       const response = await axios.post("http://127.0.0.1:8000/auth/signin", data, {headers:{"Content-Type":"application/x-www-form-urlencoded"}, withCredentials: true})
       set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
+    } catch (error) {
+      alert(error)
+    }
+  },
+  gmailSignInUserAsync: async (credentialToken: string) => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/auth/google-signin?token=${credentialToken}`, {withCredentials: true})
+      console.log(response.data)
+      set({userDetail: response.data as User})
+      set(()=>({isLoggedIn: true}))
+      set({is_google_user: response.data.is_google_user})
     } catch (error) {
       alert(error)
     }

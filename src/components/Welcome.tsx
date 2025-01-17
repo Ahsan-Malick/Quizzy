@@ -45,7 +45,7 @@ import {
 } from "./ui/select";
 import Avatar from "../utils/avatar";
 import { capitalizeFirstLetter } from "../utils/capitalize";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Mock user data
 const user = {
@@ -102,6 +102,12 @@ const quizCategories = [
   { value: "other", label: "Other" },
 ];
 
+const menuItems = [
+  { icon: Settings, label: "Settings" },
+  { icon: BarChart2, label: "Analytics" },
+  { icon: Users, label: "Invite Friends" },
+];
+
 export default function UserWelcome() {
   const [activeTab, setActiveTab] = useState<any>("dashboard");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -122,8 +128,17 @@ export default function UserWelcome() {
   const logOutUserAsync = useStore((state) => state.logOutUserAsync);
   const userDetails = useStore((state) => state.userDetail);
   const recentQuizzes = useStore((state)=>state.recent_quizzes)
-  console.log(recentQuizzes)
   
+
+  const navigate = useNavigate();
+
+  const handleMenuNavigation = (label: string) => {
+    if (label === "Settings") {
+      navigate("/settings");
+    } else if (label === "Analytics") {
+      // navigate("/analytics");
+    }
+  };
 
   const handleQuizTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuizTitle(e.target.value);
@@ -829,14 +844,11 @@ useEffect(()=>{
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {[
-                { icon: Settings, label: "Settings" },
-                { icon: BarChart2, label: "Analytics" },
-                { icon: Users, label: "Invite Friends" },
-              ].map(({ icon: Icon, label }) => (
+              {menuItems.map(({ icon: Icon, label }) => (
                 <DropdownMenuItem
                   className="flex items-center hover:bg-indigo-100 cursor-pointer"
                   key={label}
+                  onClick={() => handleMenuNavigation(label)}
                 >
                   <Icon className="mr-2 h-4 w-4" />
                   <span>{label}</span>

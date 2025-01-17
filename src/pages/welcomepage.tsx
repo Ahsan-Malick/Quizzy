@@ -3,12 +3,7 @@ import { useEffect } from "react";
 import UserWelcome from "../components/Welcome";
 
 
-type Question = {
-  id: string;
-  question: string;
-  options: string[];
-  answer: string;
-};
+
 
 const WelcomePage:React.FC = () => {
   const userDetails = useStore((state) => state.userDetail);

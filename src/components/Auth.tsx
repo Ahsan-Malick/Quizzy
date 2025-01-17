@@ -11,13 +11,18 @@ const Auth: React.FC<AuthProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const validateAuthAsync = useStore((state) => state.validateAuthAsync);
+  const gmailValidateAuthAsync = useStore((state)=> state.gmailValidateAuthAsync)
+  const is_google_user = useStore((state)=>state.is_google_user)
+  console.log({is_google_user})
+
   
   useEffect(() => {
     // Fetch authentication status from the backend using Axios
     const checkAuth = async () => {
+  
       try {
         const status = await validateAuthAsync()
-        
+  
         if (status === 200) {
           setIsAuthenticated(true); // User is authenticated
         } else {
@@ -28,6 +33,8 @@ const Auth: React.FC<AuthProps> = ({ children }) => {
         setIsAuthenticated(false);
         navigate("/signin");
       }
+    
+   
     };
 
     checkAuth();

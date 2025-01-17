@@ -13,6 +13,7 @@ import { useStore } from "../store/store";
 import WelcomePage from "../pages/welcomepage";
 import { Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import GmailButton from './gmailbutton'
 
 
 type FormValues = {
@@ -27,7 +28,7 @@ export default function SignIn() {
   const { register, handleSubmit, reset } = useForm<FormValues>();
 
   const signInUserAsync = useStore((state)=>state.signInUserAsync)
-  const userPerformanceAsync = useStore((state)=>state.userPerformanceAsync)
+
 
   const userData = useStore((state)=>state.userDetail)
 
@@ -77,7 +78,7 @@ export default function SignIn() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input {...register("password")} id="password" type="password" required />
+                <Input {...register("password")} id="password" type="password" placeholder="password" required />
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -112,7 +113,7 @@ export default function SignIn() {
                 <span className="px-2 bg-white text-gray-500">Or</span>
               </div>
             </div>
-            <Button 
+            {/* <Button 
               variant="outline" 
               className="w-full flex items-center justify-center"
               onClick={handleGoogleSignIn}
@@ -136,7 +137,8 @@ export default function SignIn() {
                 />
               </svg>
               Sign in with Google
-            </Button>
+            </Button> */}
+            <GmailButton></GmailButton>
             <Button variant="outline" className="w-full" onClick={handleGuestAccess}>
               Continue as Guest <User className="ml-2 h-4 w-4" />
             </Button>
