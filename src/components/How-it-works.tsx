@@ -58,7 +58,7 @@ const HowItWorks: React.FC =()=>{
             </motion.div>
           ))}
         </div>
-        <motion.div 
+        {/* <motion.div 
           className="mt-12 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -67,7 +67,7 @@ const HowItWorks: React.FC =()=>{
           <div className="inline-flex rounded-md shadow">
             <a
               href="#"
-              className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90"
+              className="inline-flex items-center text-black justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md  bg-primary hover:bg-primary/90"
             >
               Get Started
             </a>
@@ -80,7 +80,7 @@ const HowItWorks: React.FC =()=>{
               Learn More
             </a>
           </div>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   )

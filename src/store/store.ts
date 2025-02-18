@@ -86,6 +86,9 @@ type QuizzyStore = {
   resetQuestions: () => void; 
 };
 
+
+
+
 export const useStore = create<QuizzyStore>((set) => ({
   questions: [],
   isLoggedIn: false,
@@ -105,9 +108,10 @@ export const useStore = create<QuizzyStore>((set) => ({
     popular_category: null,
   },
   validateAuthAsync: async () => {
-    const response = await axios.get("http://127.0.0.1:8000/auth/validate", {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/validate`, {
       withCredentials: true,
     });
+    
     if (response){
     set({isLoggedIn: true});
     set(()=>({userDetail: response.data as User}))
@@ -117,7 +121,7 @@ export const useStore = create<QuizzyStore>((set) => ({
     return undefined
   },
   gmailValidateAuthAsync: async () => {
-    const response = await axios.get("http://127.0.0.1:8000/auth/gmail-validate", {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/gmail-validate`, {
       withCredentials: true,
     });
     if (response){
@@ -128,9 +132,10 @@ export const useStore = create<QuizzyStore>((set) => ({
     }
     return undefined
   },
+ 
   checkUsernameAsync: async (body) => {
     const response = await axios.post<boolean>(
-      "http://127.0.0.1:8000/auth/checkusername",
+      `${import.meta.env.VITE_API_URL}/auth/checkusername`,
       body
     );
     if (response.data === false) {
@@ -141,7 +146,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   checkEmailAsync: async (body) => {
     const response = await axios.post<boolean>(
-      "http://127.0.0.1:8000/auth/checkemail",
+      `${import.meta.env.VITE_API_URL}/auth/checkemail`,
       body
     );
     if (response.data === false) {
@@ -153,7 +158,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   signUpUserAsync: async (data) => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/auth/signup",
+        `${import.meta.env.VITE_API_URL}/auth/signup`,
         data,
         {
           headers: {
@@ -165,14 +170,13 @@ export const useStore = create<QuizzyStore>((set) => ({
       set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
   
-  
     } catch (error) {
-      alert(error) //fix it
+      alert("Invalid Otp")
     }
   },
   signInUserAsync: async (data) => {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/auth/signin", data, {headers:{"Content-Type":"application/x-www-form-urlencoded"}, withCredentials: true})
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/signin`, data, {headers:{"Content-Type":"application/x-www-form-urlencoded"}, withCredentials: true})
       set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
     } catch (error) {
@@ -181,7 +185,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   gmailSignInUserAsync: async (credentialToken: string) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/auth/google-signin?token=${credentialToken}`, {withCredentials: true})
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/google-signin?token=${credentialToken}`, {withCredentials: true})
       console.log(response.data)
       set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
@@ -193,7 +197,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   getQuestionsAsync: async (email: string) => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/quiz/quiz_questions?email=${email}`, {withCredentials: true}
+        `${import.meta.env.VITE_API_URL}/quiz/quiz_questions?email=${email}`, {withCredentials: true}
       );
       if (response.data === "null") {
         set({ no_quiz_found: "Something went wrong! No Quiz Found" });
@@ -226,7 +230,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   getResultAsync: async (result_body) => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/quiz/result",
+        `${import.meta.env.VITE_API_URL}/quiz/result`,
         result_body, {withCredentials: true} 
       );
       set({ result: response.data as Result});
@@ -235,7 +239,7 @@ export const useStore = create<QuizzyStore>((set) => ({
     }
   },
   userPerformanceAsync: async(email: string)=>{
-    const response = await axios.post(`http://127.0.0.1:8000/quiz/performance?email=${email}`,{}, {withCredentials: true});
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/quiz/performance?email=${email}`,{}, {withCredentials: true});
     const {response_data, recent_quizzes} = response.data
     console.log(recent_quizzes)
     set({userPerformance: response_data})
@@ -245,7 +249,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   },
   resetQuestions: () => set({ questions: [] }),
   logOutUserAsync: async () => {
-    const response = await axios.get("http://127.0.0.1:8000/auth/logout", {withCredentials: true})
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/logout`, {withCredentials: true})
     if (response.status === 200){
       set({isLoggedIn: false})
       set({userDetail: null})

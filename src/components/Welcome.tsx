@@ -87,7 +87,6 @@ type TestQuestion = {
   quiztime_set: number;
   difficulty: string;
   category: string;
-
 };
 
 const quizCategories = [
@@ -102,7 +101,9 @@ const quizCategories = [
   { value: "other", label: "Other" },
 ];
 
-const menuItems = [
+
+
+const menuItems= [
   { icon: Settings, label: "Settings" },
   { icon: BarChart2, label: "Analytics" },
   { icon: Users, label: "Invite Friends" },
@@ -117,18 +118,18 @@ export default function UserWelcome() {
   const [difficulty, setDifficulty] = useState("");
   const [numQuestions, setNumQuestions] = useState("");
   const [download, setDownload] = useState<boolean>(false);
-  const [quizData, setQuizData] = useState<TestQuestion|null>(null);
+  const [quizData, setQuizData] = useState<TestQuestion | null>(null);
   const [category, setCategory] = useState<string>("");
   const [quiztime, setQuizTime] = useState("");
-  const [checkUpload, setCheckUpload] = useState<boolean>(false)
-  
+  const [checkUpload, setCheckUpload] = useState<boolean>(false);
+
+
 
   const getQuestionsAsync = useStore((state) => state.getQuestionsAsync);
-  const userPerformance = useStore((state)=>state.userPerformance);
+  const userPerformance = useStore((state) => state.userPerformance);
   const logOutUserAsync = useStore((state) => state.logOutUserAsync);
   const userDetails = useStore((state) => state.userDetail);
-  const recentQuizzes = useStore((state)=>state.recent_quizzes)
-  
+  const recentQuizzes = useStore((state) => state.recent_quizzes);
 
   const navigate = useNavigate();
 
@@ -164,7 +165,7 @@ export default function UserWelcome() {
       } else {
         // Proceed with file upload
         setUploadedFile(selectedFile);
-        setCheckUpload(true)
+        setCheckUpload(true);
         toast.success("Uploaded Successfully", {
           position: "top-center",
           autoClose: 1000,
@@ -176,7 +177,14 @@ export default function UserWelcome() {
   };
 
   const uploadFile = async () => {
-    if (uploadedFile && quizTitle && difficulty && numQuestions&& category&&quiztime) {
+    if (
+      uploadedFile &&
+      quizTitle &&
+      difficulty &&
+      numQuestions &&
+      category &&
+      quiztime
+    ) {
       // Check if a file has been selected *before* creating FormData
       const formData = new FormData();
       formData.append("file", uploadedFile);
@@ -189,14 +197,10 @@ export default function UserWelcome() {
 
       try {
         setGeneratingQuiz(true);
-       await axios.post(
-          "http://127.0.0.1:8000/quiz/uploadfile/",
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-            withCredentials: true,
-          }
-        );
+        await axios.post("http://127.0.0.1:8000/quiz/uploadfile/", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        });
         const data = await getQuestionsAsync(userDetails?.email || "");
         setQuizData(data);
         setGeneratingQuiz(false);
@@ -213,38 +217,31 @@ export default function UserWelcome() {
 
   const downloadPdf = () => {
     const doc = new jsPDF();
-    const pageHeight = doc.internal.pageSize.height; // Page height
-    const lineHeight = 10; // Space between lines
-    const margin = 10; // Left margin
-    const bottomMargin = 20; // Bottom margin to avoid overflow
-    let yOffset = 20; // Initial vertical offset
+    const pageHeight = doc.internal.pageSize.height;
+    const lineHeight = 10;
+    const margin = 10;
+    const bottomMargin = 20;
+    let yOffset = 20;
 
     const difficulty = capitalizeFirstLetter(quizData?.difficulty || "");
     const category = capitalizeFirstLetter(quizData?.category || "");
 
-
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-  
+
     // Name
     doc.text("Name:________________", margin, yOffset);
-    
-  
+
     // Date
     doc.text("Date: ________________", 150, yOffset);
     yOffset += 12;
-  
-  
+
     // Difficulty Level
     doc.text(`Difficulty: ${difficulty || "Not Specified"}`, margin, yOffset);
-    
-   
-  
+
     // Category
     doc.text(`Category: ${category || "General"}`, 150, yOffset);
     yOffset += 10;
-
-
 
     // Disclaimer
     doc.setFontSize(10);
@@ -258,8 +255,9 @@ export default function UserWelcome() {
       { maxWidth: 180 } // Ensures the text wraps within the page width
     );
     yOffset += 20; // Add some spacing after the disclaimer
+  
 
-    // Add a title for the quiz and make it bold
+    // Quiz Title
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.text("Quiz", margin, yOffset);
@@ -268,41 +266,48 @@ export default function UserWelcome() {
     // Add questions with options
     doc.setFont("helvetica", "normal");
     quizData?.questions.forEach((question: Question, index: number) => {
-      // Calculate required space for the question and all its options
       const questionText = `${index + 1}. ${question.question}`;
-      const questionLines = doc.splitTextToSize(questionText, 180); // Wrap text to fit the page width
+      const questionLines = doc.splitTextToSize(questionText, 180);
       const questionHeight = questionLines.length * lineHeight;
 
       const optionsHeight = question.options.length * lineHeight;
       const totalHeight = questionHeight + optionsHeight + 5; // Extra padding between questions
 
-      // Check if there's enough space on the current page; if not, add a new page
+      // Check if new page is needed
       if (yOffset + totalHeight > pageHeight - bottomMargin) {
         doc.addPage();
         yOffset = margin;
-      }
+    }
 
-      // Render the question text
+      // Render question text
       questionLines.forEach((line: any) => {
         doc.text(line, margin, yOffset);
         yOffset += lineHeight;
       });
 
-      // Render the options
+      // Render options
       question.options.forEach((option: string, optIndex: number) => {
-        const optionText = `  ${String.fromCharCode(65 + optIndex)}. ${option}`;
-        doc.text(optionText, margin + 5, yOffset);
-        yOffset += lineHeight;
+        const optionText = `${String.fromCharCode(65 + optIndex)}. ${option}`;
+        const optionLines = doc.splitTextToSize(optionText, 170); // Adjusted max width
+
+        optionLines.forEach((line: any) => {
+          if (yOffset + lineHeight > pageHeight - bottomMargin) {
+            doc.addPage();
+            yOffset = margin;
+          }
+          doc.text(line, margin + 5, yOffset);
+          yOffset += lineHeight;
+        });
       });
 
-      yOffset += 5; // Add extra spacing between questions
+      yOffset += 5; // Extra spacing between questions
     });
 
     // Move to a new page for the Answer Key
     doc.addPage();
     yOffset = margin;
 
-    // Add Answer Key title
+    // Answer Key Title
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("Answer Key", margin, yOffset);
@@ -312,31 +317,33 @@ export default function UserWelcome() {
     doc.setFont("helvetica", "normal");
     quizData?.questions.forEach((question: Question, index: number) => {
       const answerText = `${index + 1}. ${question.answer}`;
-      if (yOffset + lineHeight > pageHeight - bottomMargin) {
-        doc.addPage();
-        yOffset = margin;
-      }
-      doc.text(answerText, margin, yOffset);
-      yOffset += lineHeight;
+      const answerLines = doc.splitTextToSize(answerText, 180);
+
+      answerLines.forEach((line: any) => {
+        if (yOffset + lineHeight > pageHeight - bottomMargin) {
+          doc.addPage();
+          yOffset = margin;
+        }
+        doc.text(line, margin, yOffset);
+        yOffset += lineHeight;
+      });
     });
 
     // Save the PDF
     doc.save(`${quizTitle}.pdf`);
   };
 
-useEffect(()=>{
-  const fetch = async()=> {
-    const data = await getQuestionsAsync(userDetails?.email || "");
-    if(data){
-      setQuizGenerated(true);
-      setCheckUpload(true);
-      setGeneratingQuiz(false)
-    }
-    
-  }
-  fetch();
-},[])
-
+  useEffect(() => {
+    const fetch = async () => {
+      const data = await getQuestionsAsync(userDetails?.email || "");
+      if (data) {
+        setQuizGenerated(true);
+        setCheckUpload(true);
+        setGeneratingQuiz(false);
+      }
+    };
+    fetch();
+  }, []);
 
   type Tab = {
     [key: string]: JSX.Element;
@@ -364,13 +371,19 @@ useEffect(()=>{
                 <span>
                   <Book className="inline mr-2" size={18} /> Quizzes Taken:
                 </span>
-                <span className="text-2xl font-bold">{userPerformance.quizzes_taken}</span>
+                <span className="text-2xl font-bold">
+                  {userPerformance.quizzes_taken}
+                </span>
               </p>
               <p className="flex justify-between items-center">
                 <span>
                   <Brain className="inline mr-2" size={18} /> Popular Category:
                 </span>
-                <span className="text-2xl font-bold">{userPerformance.popular_category?userPerformance.popular_category:"N/A"}</span>
+                <span className="text-2xl font-bold">
+                  {userPerformance.popular_category
+                    ? userPerformance.popular_category
+                    : "N/A"}
+                </span>
               </p>
             </div>
           </motion.div>
@@ -383,15 +396,21 @@ useEffect(()=>{
             <ul className="space-y-2">
               <li className="flex justify-between items-center">
                 <span>Highest Score:</span>
-                <span className="font-bold">{userPerformance.highest_score}%</span>
+                <span className="font-bold">
+                  {userPerformance.highest_score}%
+                </span>
               </li>
               <li className="flex justify-between items-center">
                 <span>Lowest Score:</span>
-                <span className="font-bold">{userPerformance.lowest_score}%</span>
+                <span className="font-bold">
+                  {userPerformance.lowest_score}%
+                </span>
               </li>
               <li className="flex justify-between items-center">
                 <span>Average Score:</span>
-                <span className="font-bold">{userPerformance.average_score.toFixed(2)}%</span>
+                <span className="font-bold">
+                  {userPerformance.average_score.toFixed(2)}%
+                </span>
               </li>
             </ul>
           </motion.div>
@@ -475,15 +494,12 @@ useEffect(()=>{
         <h2 className="text-3xl font-bold mb-6 text-indigo-800">
           Create a New Quiz
         </h2>
-        
+
         <div className="space-y-6">
           <div className=" flex flex-col" id="quiz-info">
             <div className="flex justify-around" id="info-1">
               <div className="space-y-2 mb-4 w-[40%]">
-                <Label
-                  htmlFor="quizTitle"
-                  className="font-semibold"
-                >
+                <Label htmlFor="quizTitle" className="font-semibold">
                   Quiz Title
                 </Label>
                 <Input
@@ -496,7 +512,9 @@ useEffect(()=>{
                 />
               </div>
               <div className="space-y-2 mb-4 w-[40%]">
-                <Label className="font-semibold" htmlFor="numQuestions">Number of Questions</Label>
+                <Label className="font-semibold" htmlFor="numQuestions">
+                  Number of Questions
+                </Label>
                 <Input
                   id="numQuestions"
                   type="number"
@@ -509,8 +527,7 @@ useEffect(()=>{
                     if (value > 100) {
                       toast.error("Number of questions cannot exceed 100");
                       setNumQuestions("100");
-                    }
-                    else if(quizgenerated){
+                    } else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
                       setNumQuestions(e.target.value);
@@ -522,10 +539,16 @@ useEffect(()=>{
 
             <div className="flex justify-around" id="info-2">
               <div className="space-y-2 mb-4  w-[40%]">
-                <Label className="font-semibold" htmlFor="difficulty">Difficulty Level</Label>
+                <Label className="font-semibold" htmlFor="difficulty">
+                  Difficulty Level
+                </Label>
                 <Select
                   value={difficulty}
-                  onValueChange={quizgenerated?()=>toast.error("Quiz is Already Uploaded"):(value) => setDifficulty(value)}
+                  onValueChange={
+                    quizgenerated
+                      ? () => toast.error("Quiz is Already Uploaded")
+                      : (value) => setDifficulty(value)
+                  }
                 >
                   <SelectTrigger id="difficulty">
                     <SelectValue placeholder="Select difficulty" />
@@ -553,31 +576,39 @@ useEffect(()=>{
                 </Select>
               </div>
               <div className="space-y-2 w-[40%]">
-                <Label className="font-semibold" htmlFor="category">Select Category</Label>
+                <Label className="font-semibold" htmlFor="category">
+                  Select Category
+                </Label>
                 <Select
                   value={category}
-                  onValueChange={quizgenerated?()=>toast.error("Quiz is Already Uploaded"):(value) => setCategory(value)}
+                  onValueChange={
+                    quizgenerated
+                      ? () => toast.error("Quiz is Already Uploaded")
+                      : (value) => setCategory(value)
+                  }
                 >
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent className="bg-white max-h-60">
                     {quizCategories.map((category) => (
-                    <SelectItem
-                      className="cursor-pointer hover:bg-indigo-100"
-                      value={category.value}
-                    >
-                      {category.label}
-                    </SelectItem>
+                      <SelectItem
+                        className="cursor-pointer hover:bg-indigo-100"
+                        value={category.value}
+                      >
+                        {category.label}
+                      </SelectItem>
                     ))}
-              </SelectContent>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className=" flex justify-around" id="quiztime">
-            <div className="space-y-2 mb-4  w-[40%]">
-                <Label className="font-semibold" htmlFor="numQuestions">Quiz Time(mins)</Label>
+              <div className="space-y-2 mb-4  w-[40%]">
+                <Label className="font-semibold" htmlFor="numQuestions">
+                  Quiz Time(mins)
+                </Label>
                 <Input
                   id="quizTime"
                   type="number"
@@ -590,7 +621,7 @@ useEffect(()=>{
                     if (value > 1000) {
                       toast.error("Quiz Time cannot exceed 1000");
                       setQuizTime("100");
-                    }else if(quizgenerated){
+                    } else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
                       setQuizTime(e.target.value);
@@ -598,12 +629,15 @@ useEffect(()=>{
                   }}
                 />
               </div>
-              </div>
+            </div>
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <h3 className="text-xl font-semibold mb-4 text-indigo-700">
-              Upload a Document <span className="text-gray-400 text-sm">File size must not exceed 25MB</span>
+              Upload a Document{" "}
+              <span className="text-gray-400 text-sm">
+                File size must not exceed 20MB
+              </span>
             </h3>
             <p className="text-gray-600 mb-4">
               Upload a document and our AI will generate a quiz based on its
@@ -660,7 +694,7 @@ useEffect(()=>{
                   </>
                 ) : quizgenerated ? (
                   <>
-                    <Link to="/quiz" state={{quizTime: Number(quiztime)}}>
+                    <Link to="/quiz" state={{ quizTime: Number(quiztime) }}>
                       <div className="flex">
                         <Rocket className="mr-2 h-5 w-5" />
                         Let's Go!
@@ -677,11 +711,11 @@ useEffect(()=>{
                 )}
               </Button>
             </motion.div>
-            <motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 disabled={!download}
                 onClick={downloadPdf}
-                className="bg-green-500 text-white rounded-xl shadow-lg"
+                className="bg-green-500 text-white text-lg rounded-xl shadow-lg"
               >
                 Download Quiz
               </Button>
@@ -805,22 +839,22 @@ useEffect(()=>{
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4">
       <ToastContainer
-            position="top-center"
-            autoClose={5000}
-            hideProgressBar={true}
-            newestOnTop={false}
-            closeOnClick={false}
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-            transition={Bounce}
-          />
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-6">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-            QUIZ App
+            QUIZZY
           </h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -849,6 +883,7 @@ useEffect(()=>{
                   className="flex items-center hover:bg-indigo-100 cursor-pointer"
                   key={label}
                   onClick={() => handleMenuNavigation(label)}
+                  disabled
                 >
                   <Icon className="mr-2 h-4 w-4" />
                   <span>{label}</span>
@@ -867,10 +902,10 @@ useEffect(()=>{
         <nav className="flex flex-wrap justify-center gap-2 rounded-xl bg-indigo-50 p-2 mb-8">
           {[
             { id: "dashboard", icon: Book, label: "Dashboard" },
-            { id: "explore", icon: Search, label: "Explore" },
+            // { id: "explore", icon: Search, label: "Explore" },
             { id: "create", icon: PlusCircle, label: "Create" },
-            { id: "achievements", icon: Trophy, label: "Achievements" },
-            { id: "videoNotes", icon: Video, label: "Video Notes" },
+            // { id: "achievements", icon: Trophy, label: "Achievements" },
+            // { id: "videoNotes", icon: Video, label: "Video Notes" },
           ].map(({ id, icon: Icon, label }) => (
             <Button
               key={id}
