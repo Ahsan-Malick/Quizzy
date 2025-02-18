@@ -2,18 +2,13 @@ import React from 'react'
 import Navbar from './Navbar'
 import Hero from './Hero'
 import HowItWorks from './How-it-works'
-import Pricing from './Pricing'
-import UsersCount from './UsersCount'
 import AboutQuizzy from './AboutQuizzy'
 import Contact from './Contact'
 
 
-interface HomeProps {
-  userLogged: boolean;
-}
 
 
-const Home: React.FC<HomeProps> = () => {
+const Home: React.FC = () => {
   
   return (
     <div className="scroll-smooth">
