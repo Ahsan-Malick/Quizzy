@@ -12,18 +12,20 @@ const WelcomePage:React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!userDetails) {
-        
-      
-      navigate("/signin",{replace:true})
-    }
+  
     const fetch = async()=>{
       await userPerformanceAsync(userDetails?.email||"")
     }
     fetch();
   }, [userDetails]);
 
-  return <UserWelcome/>;
+  if (!userDetails) {
+    navigate("/signin",{replace:true})
+  }
+  else{
+    return <UserWelcome/>;
+  }
+
 };
 
 
