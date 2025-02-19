@@ -186,7 +186,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   gmailSignInUserAsync: async (credentialToken: string) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/google-signin?token=${credentialToken}`, {withCredentials: true})
-      console.log(response.data)
+      
       set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
       set({is_google_user: response.data.is_google_user})
@@ -241,7 +241,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   userPerformanceAsync: async(email: string)=>{
     const response = await axios.post(`${import.meta.env.VITE_API_URL}/quiz/performance?email=${email}`,{}, {withCredentials: true});
     const {response_data, recent_quizzes} = response.data
-    console.log(recent_quizzes)
+  
     set({userPerformance: response_data})
     set({recent_quizzes: recent_quizzes})
    
@@ -257,6 +257,3 @@ export const useStore = create<QuizzyStore>((set) => ({
   }
 }));
 
-// useStore.subscribe((state) => {
-//   console.log("State updated:", state);
-// });

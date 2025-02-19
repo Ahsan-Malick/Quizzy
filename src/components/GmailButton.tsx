@@ -11,7 +11,7 @@ const GmailButton = () => {
       try {
         await gmailSignInUserAsync(response.credential);
         // Handle successful authentication, e.g., store tokens, redirect user
-        console.log("Authentication successful");
+       
       } catch (error) {
         // Handle errors from the backend
         console.error("Error during authentication:", error);

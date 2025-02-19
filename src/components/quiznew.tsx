@@ -83,10 +83,10 @@ export default function EnhancedQuizEnvironment() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    console.log()
+    
     const fetchQuizDetails = async () => {
       const startQuizData = { email: userDetail?.email, duration: duration*60 };
-      console.log(duration)
+      
       const response = await axios.post(
         `http://127.0.0.1:8000/quiz/start-quiz`,
         startQuizData,
@@ -181,7 +181,7 @@ export default function EnhancedQuizEnvironment() {
         { withCredentials: true } // check if the current question is answered
       );
       setRecord(response.data);
-      // console.log(response.data);
+      
       // await checkQuestionAttemptAsync(question_index); //may we delete this line
     } catch (error) {
       console.error(error);
@@ -405,10 +405,7 @@ export default function EnhancedQuizEnvironment() {
                   onClick={() => {
                     setShowWarning(false);
                     // Handle final submission here
-                    console.log(
-                      "Quiz submitted with unattempted questions:",
-                      userAnswers
-                    );
+              
                   }}
                 >
                   Submit Anyway

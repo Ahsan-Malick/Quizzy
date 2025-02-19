@@ -7,7 +7,7 @@ const SignInPage = () => {
   const gmailValidateAuthAsync = useStore((state)=> state.gmailValidateAuthAsync)
   const [isChecking, setIsChecking] = useState(true);
   const is_google_user = useStore((state)=>state.is_google_user)
-  console.log("I am here")
+  
 
   useEffect(() => {
     const validateAuth = async () => {

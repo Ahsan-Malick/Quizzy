@@ -61,7 +61,7 @@ export default function SignIn() {
   const handleResetPassword = async(event: React.FormEvent) => {
     event.preventDefault()
     await axios.post("http://127.0.0.1:8000/auth/forgot-password",{email: resetEmail})
-    console.log('Requesting password reset for:', resetEmail)
+   
     setResetEmailSent(true)
   }
 

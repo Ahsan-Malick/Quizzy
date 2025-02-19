@@ -183,7 +183,7 @@ export default function Signup() {
     }
 
     if (confirmPassword && password !== confirmPassword) {
-      console.log(confirmPassword, password);
+     
       setConfirmPasswordError("Passwords do not match");
     } else {
       setConfirmPasswordError("");

@@ -44,7 +44,7 @@ export default function PasswordReset() {
     }
 
     // TODO: Implement actual password reset logic here
-    console.log('Resetting password:', password)
+    
     setSuccess(true)
   }
 

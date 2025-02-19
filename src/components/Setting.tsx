@@ -20,12 +20,12 @@ export default function SettingsPage() {
   const handleSaveProfile = (event: React.FormEvent) => {
     event.preventDefault()
     // Handle saving profile logic here
-    console.log('Profile saved:', { name, email })
+    
   }
 
   const handleLogout = () => {
     // Handle logout logic here
-    console.log('Logging out...')
+   
   }
 
   return (

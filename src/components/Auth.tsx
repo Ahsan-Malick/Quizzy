@@ -13,7 +13,7 @@ const Auth: React.FC<AuthProps> = ({ children }) => {
   const validateAuthAsync = useStore((state) => state.validateAuthAsync);
   const gmailValidateAuthAsync = useStore((state)=> state.gmailValidateAuthAsync)
   const is_google_user = useStore((state)=>state.is_google_user)
-  console.log({is_google_user})
+  
 
   
   useEffect(() => {
