@@ -1,6 +1,7 @@
 import { useStore } from "../store/store";
 import { useEffect } from "react";
 import UserWelcome from "../components/Welcome";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -8,13 +9,13 @@ import UserWelcome from "../components/Welcome";
 const WelcomePage:React.FC = () => {
   const userDetails = useStore((state) => state.userDetail);
   const userPerformanceAsync = useStore((state)=>state.userPerformanceAsync);
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!userDetails) {
         
-      // Using window.location.href for redirection ensures a full page reload, which can be beneficial for clearing any existing state and ensuring that the user is fully redirected to the sign-in page.
-      window.location.href = "/signin"; // Redirect to sign-in page if user details are not available
+      
+      navigate("/signin",{replace:true})
     }
     const fetch = async()=>{
       await userPerformanceAsync(userDetails?.email||"")
