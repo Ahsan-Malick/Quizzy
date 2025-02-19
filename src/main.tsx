@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -52,9 +52,9 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+ 
     <GoogleOAuthProvider clientId="332743294598-knm23bv9pm17k13ibtif5cq0i8lp85b3.apps.googleusercontent.com">
     <RouterProvider router={router} />
     </GoogleOAuthProvider>
-  </StrictMode>
+
 );
