@@ -9,7 +9,7 @@ const UsersCount: React.FC = () => {
 
     useEffect(()=>{
         const fetch=async()=>{
-        const response = await axios.get("http://127.0.0.1:8000/users-count")
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/users-count`)
         const total_users = response.data.total_users
         setTotalUsers(total_users)
         }

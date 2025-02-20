@@ -133,7 +133,7 @@ export default function Signup() {
       return
     }
     setOtpSending(true)
-    const response=await axios.get(`http://127.0.0.1:8000/signup/otp?email=${email}`)
+    const response=await axios.get(`${import.meta.env.VITE_API_URL}/signup/otp?email=${email}`)
     setOtpSending(false)
     if (response.status===200){
       toast.success("Otp sent successfully")

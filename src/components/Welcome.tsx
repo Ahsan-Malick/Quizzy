@@ -197,7 +197,7 @@ export default function UserWelcome() {
 
       try {
         setGeneratingQuiz(true);
-        await axios.post("http://127.0.0.1:8000/quiz/uploadfile/", formData, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/quiz/uploadfile/`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         });

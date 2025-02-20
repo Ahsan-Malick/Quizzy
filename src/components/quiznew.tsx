@@ -88,7 +88,7 @@ export default function EnhancedQuizEnvironment() {
       const startQuizData = { email: userDetail?.email, duration: duration*60 };
       
       const response = await axios.post(
-        `http://127.0.0.1:8000/quiz/start-quiz`,
+        `${import.meta.env.VITE_API_URL}/quiz/start-quiz`,
         startQuizData,
         { withCredentials: true }
       ); // Example duration: 5 minutes
@@ -176,7 +176,7 @@ export default function EnhancedQuizEnvironment() {
     //checks if the current question is right or wrong and then submit the answer to database
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/quiz/check-answer/",
+        `${import.meta.env.VITE_API_URL}/quiz/check-answer/`,
         answer,
         { withCredentials: true } // check if the current question is answered
       );
@@ -194,7 +194,7 @@ export default function EnhancedQuizEnvironment() {
       //checks if the current question is right or wrong and then submit the answer to database
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/quiz/check-answer/",
+          `${import.meta.env.VITE_API_URL}/quiz/check-answer/`,
           answer,
           { withCredentials: true } // check if the current question is answered
         );

@@ -60,7 +60,7 @@ export default function SignIn() {
 
   const handleResetPassword = async(event: React.FormEvent) => {
     event.preventDefault()
-    await axios.post("http://127.0.0.1:8000/auth/forgot-password",{email: resetEmail})
+    await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot-password`,{email: resetEmail})
    
     setResetEmailSent(true)
   }
@@ -69,7 +69,7 @@ export default function SignIn() {
 
   useEffect(()=>{
       const fetch=async()=>{
-      const response = await axios.get("http://127.0.0.1:8000/users-count")
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users-count`)
       const total_users = response.data.total_users
       setTotalUsers(total_users)
       }

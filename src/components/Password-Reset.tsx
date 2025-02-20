@@ -29,7 +29,7 @@ export default function PasswordReset() {
   const handleResetPassword = async(event: React.FormEvent) => {
     event.preventDefault()
     const data = {token: token, new_password: password}
-    await axios.post("http://127.0.0.1:8000/auth/reset-password", data )
+    await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password`, data )
     setError('')
     setSuccess(false)
 
@@ -50,7 +50,7 @@ export default function PasswordReset() {
 
   useEffect(() => {
     // Check token validity when the page loads
-    fetch(`http://127.0.0.1:8000/auth/validate-reset-token?token=${token}`)
+    fetch(`${import.meta.env.VITE_API_URL}/auth/validate-reset-token?token=${token}`)
       .then(response => response.json())
       .then(data => {
         if (data.message === "Token is valid") {

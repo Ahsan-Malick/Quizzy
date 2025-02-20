@@ -218,7 +218,7 @@ export const useStore = create<QuizzyStore>((set) => ({
   checkQuestionAttemptAsync: async (question_index: number) => {
     try {
       const response = await axios.get<boolean | string>(
-        `http://127.0.0.1:8000/quiz/attempted-question?question_index=${question_index}`, {withCredentials: true}
+        `${import.meta.env.VITE_API_URL}/quiz/attempted-question?question_index=${question_index}`, {withCredentials: true}
       );
       set({ currentOption: response.data });
     } catch (error) {
