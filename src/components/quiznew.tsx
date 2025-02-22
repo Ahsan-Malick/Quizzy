@@ -255,9 +255,9 @@ export default function EnhancedQuizEnvironment() {
             transition={Bounce}
           />
           <div className="max-w-4xl w-full mx-auto bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
-            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 mdsm:flex mdsm:justify-between mdsm:items-center max-mdsm:flex max-mdsm:flex-col max-mdsm:items-center max-mdsm:space-y-2 max-mdsm:justify-center">
               <h1 className="text-2xl font-bold text-gray-800">{quizTitle}</h1>
-              <div className="flex items-center space-x-4">
+              <div className="xsm:flex xsm:items-center xsm:space-x-4 max-xsm:flex max-xsm:flex-col max-xsm:items-center max-xsm:space-y-2 max-xsm:justify-center">
                 <div className="flex items-center text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full">
                   <Clock className="mr-2 h-5 w-5" />
                   <span className="font-semibold">

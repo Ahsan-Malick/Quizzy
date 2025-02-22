@@ -101,9 +101,7 @@ const quizCategories = [
   { value: "other", label: "Other" },
 ];
 
-
-
-const menuItems= [
+const menuItems = [
   { icon: Settings, label: "Settings" },
   { icon: BarChart2, label: "Analytics" },
   { icon: Users, label: "Invite Friends" },
@@ -122,8 +120,6 @@ export default function UserWelcome() {
   const [category, setCategory] = useState<string>("");
   const [quiztime, setQuizTime] = useState("");
   const [checkUpload, setCheckUpload] = useState<boolean>(false);
-
-
 
   const getQuestionsAsync = useStore((state) => state.getQuestionsAsync);
   const userPerformance = useStore((state) => state.userPerformance);
@@ -197,10 +193,14 @@ export default function UserWelcome() {
 
       try {
         setGeneratingQuiz(true);
-        await axios.post(`${import.meta.env.VITE_API_URL}/quiz/uploadfile/`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        });
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/quiz/uploadfile/`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          }
+        );
         const data = await getQuestionsAsync(userDetails?.email || "");
         setQuizData(data);
         setGeneratingQuiz(false);
@@ -255,7 +255,6 @@ export default function UserWelcome() {
       { maxWidth: 180 } // Ensures the text wraps within the page width
     );
     yOffset += 20; // Add some spacing after the disclaimer
-  
 
     // Quiz Title
     doc.setFontSize(16);
@@ -277,7 +276,7 @@ export default function UserWelcome() {
       if (yOffset + totalHeight > pageHeight - bottomMargin) {
         doc.addPage();
         yOffset = margin;
-    }
+      }
 
       // Render question text
       questionLines.forEach((line: any) => {
@@ -496,9 +495,12 @@ export default function UserWelcome() {
         </h2>
 
         <div className="space-y-6">
-          <div className=" flex flex-col" id="quiz-info">
-            <div className="flex justify-around" id="info-1">
-              <div className="space-y-2 mb-4 w-[40%]">
+          <div className=" flex flex-col " id="quiz-info">
+            <div
+              className="mx-auto w-full xsm:flex xsm:justify-around max-xsm:items-center max-xsm:flex max-xsm:flex-col"
+              id="info-1"
+            >
+              <div className="space-y-2 mb-4 xsm:w-[40%] max-xsm:w-full">
                 <Label htmlFor="quizTitle" className="font-semibold">
                   Quiz Title
                 </Label>
@@ -511,7 +513,7 @@ export default function UserWelcome() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                 />
               </div>
-              <div className="space-y-2 mb-4 w-[40%]">
+              <div className="space-y-2 mb-4 xsm:w-[40%] max-xsm:w-full">
                 <Label className="font-semibold" htmlFor="numQuestions">
                   Number of Questions
                 </Label>
@@ -537,8 +539,8 @@ export default function UserWelcome() {
               </div>
             </div>
 
-            <div className="flex justify-around" id="info-2">
-              <div className="space-y-2 mb-4  w-[40%]">
+            <div className="mx-auto w-full xsm:flex xsm:justify-around max-xsm:items-center max-xsm:flex max-xsm:flex-col" id="info-2">
+              <div className="space-y-2 mb-4 xsm:w-[40%] max-xsm:w-full">
                 <Label className="font-semibold" htmlFor="difficulty">
                   Difficulty Level
                 </Label>
@@ -575,7 +577,7 @@ export default function UserWelcome() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2 w-[40%]">
+              <div className="space-y-2 xsm:w-[40%] max-xsm:w-full">
                 <Label className="font-semibold" htmlFor="category">
                   Select Category
                 </Label>
@@ -604,8 +606,8 @@ export default function UserWelcome() {
               </div>
             </div>
 
-            <div className=" flex justify-around" id="quiztime">
-              <div className="space-y-2 mb-4  w-[40%]">
+            <div className=" flex justify-around mt-4" id="quiztime">
+              <div className="space-y-2 mb-4 xsm:w-[40%] max-xsm:w-full">
                 <Label className="font-semibold" htmlFor="numQuestions">
                   Quiz Time(mins)
                 </Label>
@@ -681,7 +683,7 @@ export default function UserWelcome() {
             )}
           </div>
 
-          <div className="flex justify-center space-x-2">
+          <div className="max-xsm:flex max-xsm:flex-col max-xsm:items-center max-xsm:space-y-2 max-xsm:justify-center xsm:flex xsm:justify-center space-x-2">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 disabled={!checkUpload || generatingQuiz}
