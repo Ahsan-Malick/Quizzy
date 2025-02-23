@@ -660,7 +660,7 @@ export default function UserWelcome() {
                     drag and drop
                   </p>
                   <p className="text-xs text-indigo-500">
-                    PDF, DOCX, or TXT (MAX. 20MB)
+                    PDF Only (MAX. 20MB)
                   </p>
                 </div>
                 <input
