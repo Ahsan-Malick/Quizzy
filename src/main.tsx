@@ -12,7 +12,7 @@ import ResultPage from "./pages/resultpage.tsx";
 import SettingsPage from "./pages/settingspage.tsx";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import PasswordResetPage from "./pages/password-reset-page.tsx";
-import PdfUploader from "./components/test.tsx";
+
 
 
 const router = createBrowserRouter([
@@ -20,10 +20,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
   },
-  {
-    path: "/test",
-    element: <PdfUploader />,
-  },
+
   {
     path: "/quiz", //protected route, on this page we will have to check if the user is logged in. by making parent of path.
     element: <Auth><EnhancedQuizEnvironment /></Auth>,
