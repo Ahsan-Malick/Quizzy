@@ -396,19 +396,19 @@ export default function UserWelcome() {
               <li className="flex justify-between items-center">
                 <span>Highest Score:</span>
                 <span className="font-bold">
-                  {userPerformance.highest_score}%
+                  {userPerformance.highest_score.toFixed(1)}%
                 </span>
               </li>
               <li className="flex justify-between items-center">
                 <span>Lowest Score:</span>
                 <span className="font-bold">
-                  {userPerformance.lowest_score}%
+                  {userPerformance.lowest_score.toFixed(1)}%
                 </span>
               </li>
               <li className="flex justify-between items-center">
                 <span>Average Score:</span>
                 <span className="font-bold">
-                  {userPerformance.average_score.toFixed(2)}%
+                  {userPerformance.average_score.toFixed(1)}%
                 </span>
               </li>
             </ul>
@@ -430,7 +430,7 @@ export default function UserWelcome() {
             >
               <span className="font-medium text-lg">{quiz.title}</span>
               <span className="text-2xl font-bold text-indigo-600">
-                {quiz.score_percentage}%
+                {quiz.score_percentage.toFixed(1)}%
               </span>
             </motion.li>
           ))}
@@ -516,19 +516,22 @@ export default function UserWelcome() {
               <div className="space-y-2 mb-4 xsm:w-[40%] max-xsm:w-full">
                 <Label className="font-semibold" htmlFor="numQuestions">
                   Number of Questions
+                  <span className="text-gray-500 text-sm ml-1">
+                    (Max 30)
+                  </span>
                 </Label>
                 <Input
                   id="numQuestions"
                   type="number"
                   min="1"
-                  max="100"
+                  max="30"
                   value={numQuestions}
                   placeholder="Enter the number of questions"
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value > 100) {
-                      toast.error("Number of questions cannot exceed 100");
-                      setNumQuestions("100");
+                    if (value > 30) {
+                      toast.error("Number of questions cannot exceed 30");
+                      setNumQuestions("30");
                     } else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
