@@ -101,9 +101,6 @@ export default function Signup() {
     }
   };
 
-  const handleGuestAccess = () => {
-    // Handle guest access logic here
-  };
 
   const checkUsername = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target as HTMLInputElement;
@@ -132,16 +129,22 @@ export default function Signup() {
       setError('Please enter an email address')
       return
     }
-    setOtpSending(true)
-    const response=await axios.get(`${import.meta.env.VITE_API_URL}/signup/otp?email=${email}`)
-    setOtpSending(false)
+    try {
+      setOtpSending(true)
+      const response=await axios.get(`${import.meta.env.VITE_API_URL}/auth/otp?email=${email}`)
+      setOtpSending(false)
     if (response.status===200){
       toast.success("Otp sent successfully")
     }
     else {
       toast.error("something went wrong!")
+      setOtpSending(false)
     }
-    setError('')
+  }
+  catch (error) {
+    toast.error("Email already registered")
+    setOtpSending(false)
+  }
   };
 
 
