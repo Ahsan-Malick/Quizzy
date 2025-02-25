@@ -517,21 +517,21 @@ export default function UserWelcome() {
                 <Label className="font-semibold" htmlFor="numQuestions">
                   Number of Questions
                   <span className="text-gray-500 text-sm ml-1">
-                    (Max 30)
+                    (Max 5 for trial version)
                   </span>
                 </Label>
                 <Input
                   id="numQuestions"
                   type="number"
                   min="1"
-                  max="30"
+                  max="5"
                   value={numQuestions}
                   placeholder="Enter the number of questions"
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value > 30) {
-                      toast.error("Number of questions cannot exceed 30");
-                      setNumQuestions("30");
+                    if (value > 5) {
+                      toast.error("Number of questions cannot exceed 5");
+                      setNumQuestions("5");
                     } else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
