@@ -5,7 +5,7 @@ import { Check, Zap, Brain, Rocket} from "lucide-react"
 import { Link, Navigate } from 'react-router-dom'
 const plans = [
   {
-    name: "Novice",
+    name: "Free",
     icon: Zap,
     price: "Free",
     features: [
