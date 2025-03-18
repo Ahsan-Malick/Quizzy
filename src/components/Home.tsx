@@ -4,6 +4,7 @@ import Hero from './Hero'
 import HowItWorks from './How-it-works'
 import AboutQuizzy from './AboutQuizzy'
 import Contact from './Contact'
+import Pricing from './Pricing'
 
 
 
@@ -23,11 +24,13 @@ const Home: React.FC = () => {
       <section id="how-it-works">
         <HowItWorks />
       </section>
+      <section id="pricing">
+     <Pricing></Pricing>
+      </section>
       <section id="contact">
         <Contact />
       </section>
-     
-     {/* <Pricing></Pricing> */}
+      
     </div>
   )
 }

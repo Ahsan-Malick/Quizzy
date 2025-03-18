@@ -46,6 +46,7 @@ import {
 import Avatar from "../utils/avatar";
 import { capitalizeFirstLetter } from "../utils/capitalize";
 import { Link, useNavigate } from "react-router-dom";
+import { PlanBanner } from "./Plan-Banner";
 
 // Mock user data
 const user = {
@@ -517,22 +518,27 @@ export default function UserWelcome() {
                 <Label className="font-semibold" htmlFor="numQuestions">
                   Number of Questions
                   <span className="text-gray-500 text-sm ml-1">
-                    (Max 5 for trial version)
+                    (Max {userDetails?.subscription_status === "Geek" ? "35" : "5"} for current plan)
                   </span>
                 </Label>
                 <Input
                   id="numQuestions"
                   type="number"
                   min="1"
-                  max="5"
+                  max={userDetails?.subscription_status === "Geek" ? "35" : "5"}
                   value={numQuestions}
                   placeholder="Enter the number of questions"
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value > 5) {
-                      toast.error("Number of questions cannot exceed 5");
+                    if (value > 5 && userDetails?.subscription_status !== "Geek") {
+                      toast.error("Number of questions cannot exceed 5 for Free Plan");
                       setNumQuestions("5");
-                    } else if (quizgenerated) {
+                    }
+                    else if (value > 35 && userDetails?.subscription_status === "Geek") {
+                      toast.error("Number of questions cannot exceed 35 for Geek Plan");
+                      setNumQuestions("35");
+                    }
+                     else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
                       setNumQuestions(e.target.value);
@@ -565,6 +571,8 @@ export default function UserWelcome() {
                     >
                       Easy
                     </SelectItem>
+                    {userDetails?.subscription_status === "Geek" && (
+                      <>
                     <SelectItem
                       className="cursor-pointer hover:bg-indigo-100"
                       value="medium"
@@ -577,6 +585,8 @@ export default function UserWelcome() {
                     >
                       Hard
                     </SelectItem>
+                    </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -618,14 +628,17 @@ export default function UserWelcome() {
                   id="quizTime"
                   type="number"
                   min="2"
-                  max="1000"
+                  max={userDetails?.subscription_status === "Geek" ? "180" : "5"}
                   value={quiztime}
                   placeholder="Enter the time allowed for the quiz"
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value > 1000) {
-                      toast.error("Quiz Time cannot exceed 1000");
-                      setQuizTime("100");
+                    if (value > 5 && userDetails?.subscription_status !== "Geek") {
+                      toast.error("Quiz Time cannot exceed 5 mins for Free Plan");
+                      setQuizTime("5");
+                    } else if (value > 180 && userDetails?.subscription_status === "Geek") {
+                      toast.error("Quiz Time cannot exceed 180 mins for Geek Plan");
+                      setQuizTime("180");
                     } else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
@@ -718,7 +731,7 @@ export default function UserWelcome() {
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
-                disabled={!download}
+                disabled={!download || userDetails?.subscription_status === "Free"}
                 onClick={downloadPdf}
                 className="bg-green-500 text-white text-lg rounded-xl shadow-lg"
               >
@@ -904,6 +917,10 @@ export default function UserWelcome() {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
+
+        {/* banner */}
+       <PlanBanner email={userDetails?.email || ""} userPlan={userDetails?.subscription_status || "Free"} userName={userDetails?.firstname || ""} />
+
         <nav className="flex flex-wrap justify-center gap-2 rounded-xl bg-indigo-50 p-2 mb-8">
           {[
             { id: "dashboard", icon: Book, label: "Dashboard" },

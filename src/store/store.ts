@@ -30,6 +30,7 @@ export type User = {
   email: string;
   avatar: string;
   is_google_user: boolean;
+  subscription_status: string;
   disabled: boolean
 };
 
@@ -57,6 +58,17 @@ export type RecentQuizzes = {
   quiz_no: number,
   score_percentage: number
 }
+type StripeSessionStatus = {
+  status: string;
+  customer_email: string;
+  customer_name: string;
+  product: string;
+  product_price: number;
+  subscription_start_date: string;
+  subscription_end_date: string;
+
+  // Add any other properties that come back from your API
+};
 
 type QuizzyStore = {
   questions: Question[];
@@ -68,6 +80,13 @@ type QuizzyStore = {
   isLoggedIn: boolean;
   userDetail: User | null;
   quizTime: number;
+  status: string | null;
+  customerEmail: string | null;
+  customerName: string | null;
+  product: string | null;
+  product_price: number | null;
+  subscriptionStartDate: string | null;
+  subscriptionEndDate: string | null;
   userPerformance: UserPerformance;
   recent_quizzes: RecentQuizzes[] ;
   is_google_user: boolean;
@@ -83,7 +102,9 @@ type QuizzyStore = {
   validateAuthAsync: () => Promise<number | undefined>;
   gmailValidateAuthAsync: () => Promise<number | undefined>;
   logOutUserAsync: () => Promise<void>;
-  resetQuestions: () => void; 
+  resetQuestions: () => void;
+  getStripeSessionStatusAsync: (sessionId: string) => Promise<StripeSessionStatus | undefined>;
+
 };
 
 
@@ -106,6 +127,35 @@ export const useStore = create<QuizzyStore>((set) => ({
     lowest_score: 0,
     average_score: 0,
     popular_category: null,
+  },
+  status: null,
+  customerEmail: null,
+  customerName: null,
+  product: null,
+  product_price: null,
+  subscriptionStartDate: null,
+  subscriptionEndDate: null,
+  getStripeSessionStatusAsync: async (sessionId: string) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/stripe/session-status`,
+        { params: { session_id: sessionId }, withCredentials: true }
+      );
+      
+      const data = response.data;
+      set({
+        status: data.status,
+        customerEmail: data.customer_email,
+        customerName: data.customer_name,
+        subscriptionStartDate: data.subscription_start_date,
+        subscriptionEndDate: data.subscription_end_date,
+        product: data.product,
+        product_price: data.product_price
+      });
+      return data;
+    } catch (error) {
+      console.error("Error fetching session status:", error);
+    }
   },
   validateAuthAsync: async () => {
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/validate`, {

@@ -12,6 +12,9 @@ import ResultPage from "./pages/resultpage.tsx";
 import SettingsPage from "./pages/settingspage.tsx";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import PasswordResetPage from "./pages/password-reset-page.tsx";
+import Checkout from "./components/stripe/CheckoutForm.tsx";
+import Return from "./components/stripe/Return.tsx";
+import CancelSubscription from "./components/CancelSubscription.tsx";
 
 
 
@@ -28,6 +31,19 @@ const router = createBrowserRouter([
   {
     path: "/welcome",
     element: <Auth><WelcomePage></WelcomePage></Auth>,
+  },
+  {
+    path: "/checkout",
+    element: <Checkout />,
+  },
+  {
+    path: "/cancel",
+    element: <CancelSubscription />,
+  },
+
+  {
+    path: "/return",
+    element: <Return />,
   },
   {
     path: "/signin",
