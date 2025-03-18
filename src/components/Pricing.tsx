@@ -9,7 +9,7 @@ const plans = [
     icon: Zap,
     price: "Free",
     features: [
-      "3 AI-generated questions/request",
+      "5 AI-generated questions/request",
       "Email support",
       
     ],
@@ -20,8 +20,11 @@ const plans = [
     icon: Brain,
     price: "$2.99/month",
     features: [
-      "Upto 50 AI-generated questions/request",
+      "Upto 35 AI-generated questions/request",
       "Priority support",
+      "Various difficulty levels",
+      "More Quiz Time",
+      "Download the quiz in PDF format",
     ],
     color: "from-purple-400 to-purple-600",
   },
