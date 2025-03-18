@@ -18,7 +18,7 @@ const plans = [
   {
     name: "Geek",
     icon: Brain,
-    price: "£5/month",
+    price: "$2.99/month",
     features: [
       "Upto 50 AI-generated questions/request",
       "Priority support",
