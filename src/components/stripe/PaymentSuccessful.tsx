@@ -52,14 +52,14 @@ export default function SubscriptionSuccess() {
                 ${productPrice} / "monthly"
               </span>
             </div>
-            <div className="mb-2 flex items-center justify-between">
+            {/* <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium text-gray-500">Start Date</span>
               <span className="font-medium">{subscriptionStartDate}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-500">Next Billing Date</span>
               <span className="font-medium">{subscriptionEndDate}</span>
-            </div>
+            </div> */}
           </div>
 
           <div className="rounded-lg border border-gray-200 p-4">
