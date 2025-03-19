@@ -9,7 +9,7 @@ export default function DuplicateEmailError() {
   const navigate = useNavigate();
   const email = useStore((state) => state.userDetail?.email);
   const directToDashboard = () => {
-    navigate("/");
+    navigate("/welcome");
   }
   return (
     <Alert variant="destructive" className="max-w-md mx-auto mt-10">

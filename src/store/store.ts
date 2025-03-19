@@ -31,6 +31,7 @@ export type User = {
   avatar: string;
   is_google_user: boolean;
   subscription_status: string;
+  cancel_at_period_end?: boolean
   disabled: boolean
 };
 

@@ -14,6 +14,7 @@ import {
 } from "./ui/dialog"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
+import { useStore } from "../store/store"
 
 interface CancelSubscriptionDialogProps {
   userPlan?: string|null
@@ -28,6 +29,9 @@ function CancelSubscription({ userPlan, email, onCancelled }: CancelSubscription
   const [open, setOpen] = useState(false)
 
   const isConfirmDisabled = confirmText.toLowerCase() !== "cancel subscription"
+  const [cancelling, setCancelling] = useState<boolean|undefined>(false)
+  const user = useStore((state) => state.userDetail)
+  const cancel_at_period_end = user?.cancel_at_period_end
 
   const handleCancel = async () => {
     if (isConfirmDisabled) return
@@ -41,7 +45,9 @@ function CancelSubscription({ userPlan, email, onCancelled }: CancelSubscription
 
     setIsProcessing(false)
     setShowSuccess(true)
+    setCancelling(cancel_at_period_end)
     alert("Subscription cancelled")
+    
 
     if (onCancelled) {
       onCancelled()
@@ -63,7 +69,7 @@ function CancelSubscription({ userPlan, email, onCancelled }: CancelSubscription
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
+        <Button variant="outline" disabled={cancel_at_period_end?true:false} className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
           Cancel Subscription
         </Button>
       </DialogTrigger>

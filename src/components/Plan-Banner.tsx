@@ -98,14 +98,14 @@ function PlanUpgradeDialog({ children, email }: { children: React.ReactNode, ema
           <DialogTitle>Choose Your Plan</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid gap-4 py-1">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-1">
             <PlanCard
               name="Geek"
               price="$2.99"
               period="/month"
-              features={["Unlimited quizzes", "Advanced analytics", "Custom branding", "Priority support"]}
-              color="bg-purple-600"
+              features={["35 AI-generated questions/request", "Download the quiz in PDF format", "Various difficulty levels", "More Quiz Time"]}
+              color="bg-green-600"
               email={email}
             />
 
@@ -114,13 +114,13 @@ function PlanUpgradeDialog({ children, email }: { children: React.ReactNode, ema
             //   price="$19.99"
             //   period="month"
               features={[
-                "Everything in Pro",
+                "Everything in Geek",
                 "Team collaboration",
-                "API access",
-                "White-label solution",
-                "Dedicated account manager",
+                "Customised solution for your business",
+                "24/7 support",
+                
               ]}
-              color="bg-amber-600"
+              color="bg-blue-600"
               email={email}
             //   recommended
             />
@@ -178,7 +178,9 @@ await fetch(`${import.meta.env.VITE_API_URL}/stripe/create-checkout-session?emai
         <Button className={`w-full text-white ${color}`} >Upgrade to Geek</Button>
         </Link>
       ) : (
+        <a href="https://www.linkedin.com/in/ahsan-javed-3b1b2a151/" target="_blank" rel="noopener noreferrer">
         <Button className={`w-full text-white ${color}`}>Contact Us</Button>
+        </a>
       )}
     </div>
   )
