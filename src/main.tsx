@@ -15,6 +15,8 @@ import PasswordResetPage from "./pages/password-reset-page.tsx";
 import Checkout from "./components/stripe/CheckoutForm.tsx";
 import Return from "./components/stripe/Return.tsx";
 import CancelSubscription from "./components/CancelSubscription.tsx";
+import Contact from "./components/Contact.tsx";
+import ContactPage from "./components/Contact-us.tsx";
 
 
 
@@ -34,16 +36,16 @@ const router = createBrowserRouter([
   },
   {
     path: "/checkout",
-    element: <Checkout />,
+    element: <Auth><Checkout /></Auth>,
   },
   {
     path: "/cancel",
-    element: <CancelSubscription />,
+    element: <Auth><CancelSubscription /></Auth>,
   },
 
   {
     path: "/return",
-    element: <Return />,
+    element: <Auth><Return /></Auth>,
   },
   {
     path: "/signin",
@@ -65,6 +67,11 @@ const router = createBrowserRouter([
   {
     path: "/reset-password/:token",
     element: <PasswordResetPage></PasswordResetPage>
+  },
+
+  {
+    path: "/contact-us",
+    element: <ContactPage></ContactPage>
   }
 
 ]);
