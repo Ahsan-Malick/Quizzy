@@ -10,6 +10,7 @@ const plans = [
     price: "Free",
     features: [
       "5 AI-generated questions/request",
+      "5 minutes of Quiz Time",
       "Email support",
       
     ],

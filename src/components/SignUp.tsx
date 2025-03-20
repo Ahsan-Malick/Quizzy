@@ -381,12 +381,12 @@ export default function Signup() {
                 <Checkbox id="terms" checked={checkbox} onClick={handleCheckBox} />
                 <Label htmlFor="terms" className="text-sm">
                   I agree to the{" "}
-                  <Link to="/terms" className="text-indigo-600 hover:underline">
+                  <Link to="/privacy-policy" className="text-indigo-600 hover:underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
                   <Link
-                    to="/privacy"
+                    to="/privacy-policy"
                     className="text-indigo-600 hover:underline"
                   >
                     Privacy Policy

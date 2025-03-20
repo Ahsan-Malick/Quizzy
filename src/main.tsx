@@ -17,6 +17,7 @@ import Return from "./components/stripe/Return.tsx";
 import CancelSubscription from "./components/CancelSubscription.tsx";
 import Contact from "./components/Contact.tsx";
 import ContactPage from "./components/Contact-us.tsx";
+import PrivacyPolicy from "./components/Privacy.tsx";
 
 
 
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
   {
     path: "/contact-us",
     element: <ContactPage></ContactPage>
+  },
+  {
+    path: "/privacy-policy",
+    element: <PrivacyPolicy></PrivacyPolicy>
   }
 
 ]);

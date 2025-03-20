@@ -26,11 +26,13 @@ const email = user_email;
         { method: "POST" }
       );
       
+      
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log(data);
       return data.clientSecret;
     } catch (error) {
       // Option to show an alert
