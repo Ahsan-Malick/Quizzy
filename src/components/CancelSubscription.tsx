@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { AlertTriangle, CheckCircle } from "lucide-react"
-import { Button } from "./Button"
+import { Button } from "./ui/Button"
 import {
   Dialog,
   DialogContent,

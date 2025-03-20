@@ -1,6 +1,6 @@
 import { AlertCircle, ArrowRight } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
-import { Button } from "../Button"
+import { Button } from "../ui/Button"
 import { useStore } from "../../store/store";
 import { useNavigate } from "react-router-dom";
 

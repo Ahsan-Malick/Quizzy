@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button } from "./Button"
+import { Button } from "./ui/Button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card'

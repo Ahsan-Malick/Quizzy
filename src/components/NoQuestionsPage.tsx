@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { FileQuestion, PlusCircle } from 'lucide-react'
-import { Button } from "./Button"
+import { Button } from "./ui/Button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import {Link} from "react-router-dom"
 

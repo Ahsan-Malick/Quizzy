@@ -19,7 +19,7 @@ import {
   AlertCircle,
   Rocket,
 } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "./ui/Button";
 import { Input } from "./ui/input";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { CheckCircle, ArrowRight, Calendar, CreditCard} from "lucide-react"
-import { Button } from "../Button"
+import { Button } from "../ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { Separator } from "../ui/separator"
 import { Badge } from "../ui/badge"

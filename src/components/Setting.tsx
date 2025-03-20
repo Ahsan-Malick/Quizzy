@@ -1,7 +1,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Button } from "./Button"
+import { Button } from "./ui/Button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Switch } from "./ui/switch"

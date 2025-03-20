@@ -10,7 +10,7 @@ import {
   BarChart2,
   RefreshCcw,
 } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "./ui/Button";
 import {
   Card,
   CardContent,

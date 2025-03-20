@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Button } from "./Button";
+import { Button } from "./ui/Button";
 import { ArrowRight, Brain, FileText, Zap, Pause, Play } from "lucide-react";
 import HeroImg from  "../assets/HeroImg.jpg"
 import ReactPlayer from 'react-player'

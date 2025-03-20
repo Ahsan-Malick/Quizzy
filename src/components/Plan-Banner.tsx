@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Sparkles, X, ChevronRight, Check } from "lucide-react"
-import { Button } from "./Button"   
+import { Button } from "./ui/Button"   
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { Link } from "react-router-dom"
 import CancelSubscription from "./CancelSubscription"

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "./Button"
+import { Button } from "./ui/Button"
 import { Check, Zap, Brain, Rocket} from "lucide-react"
 import { Link, Navigate } from 'react-router-dom'
 const plans = [
