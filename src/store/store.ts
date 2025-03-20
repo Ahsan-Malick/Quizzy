@@ -231,7 +231,7 @@ export const useStore = create<QuizzyStore>((set) => ({
       set({userDetail: response.data as User})
       set(()=>({isLoggedIn: true}))
     } catch (error) {
-      alert(error)
+      alert("Invalid Credentials")
     }
   },
   gmailSignInUserAsync: async (credentialToken: string) => {

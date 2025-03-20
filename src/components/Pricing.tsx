@@ -109,9 +109,9 @@ const Pricing: React.FC = () => {
                   onClick={() => {console.log("clicked")}}
                 >
                   {plan.name === "Pro" ? (
-                    <Link to="/signin" className="group w-full h-full block">
+                    <a href="https://www.linkedin.com/in/ahsan-javed-3b1b2a151/" className="group w-full h-full block">
                       Contact Us
-                    </Link>
+                    </a>
                   ) : (
                     <Link to="/signin" className="group w-full h-full block">
                       Get Started
