@@ -194,7 +194,7 @@ export default function UserWelcome() {
 
       try {
         setGeneratingQuiz(true);
-        await axios.post(
+        const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/quiz/uploadfile/`,
           formData,
           {
@@ -202,6 +202,7 @@ export default function UserWelcome() {
             withCredentials: true,
           }
         );
+        console.log({response});
         const data = await getQuestionsAsync(userDetails?.email || "");
         setQuizData(data);
         setGeneratingQuiz(false);
