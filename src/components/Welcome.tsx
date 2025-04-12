@@ -191,6 +191,7 @@ export default function UserWelcome() {
       formData.append("numQuestions", numQuestions);
       formData.append("category", category);
       formData.append("quiztime", quiztime);
+      console.log("welcome",{quiztime})
 
       try {
         setGeneratingQuiz(true);
@@ -202,7 +203,7 @@ export default function UserWelcome() {
             withCredentials: true,
           }
         );
-        console.log({response});
+       
         const data = await getQuestionsAsync(userDetails?.email || "");
         setQuizData(data);
         setGeneratingQuiz(false);

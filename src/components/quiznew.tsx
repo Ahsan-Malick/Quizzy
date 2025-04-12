@@ -54,7 +54,7 @@ type Record = {
 export default function EnhancedQuizEnvironment() {
   const navigate = useNavigate();
   const location = useLocation();
-  const quizTime = location.state?.quizTime || 0;
+
   const [showWarning, setShowWarning] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
@@ -82,43 +82,7 @@ export default function EnhancedQuizEnvironment() {
 
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
-  useEffect(() => {
-    
-    const fetchQuizDetails = async () => {
-      const startQuizData = { email: userDetail?.email, duration: duration*60 };
-      
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/quiz/start-quiz`,
-        startQuizData,
-        { withCredentials: true }
-      ); // Example duration: 5 minutes
-      const endTime = new Date(response.data.end_time).getTime();
-      const currentTime = new Date().getTime();
-      const remainingTime = Math.max(
-        Math.floor((endTime - currentTime) / 1000),
-        0
-      );
-      setTimeLeft(remainingTime);
-    };
-
-    fetchQuizDetails();
-  }, []);
-
-  useEffect(() => {
-    if (timeLeft === null) return;
-
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev === null || prev <= 0) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timeLeft]);
+ 
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -237,9 +201,63 @@ export default function EnhancedQuizEnvironment() {
     fetchQuestions();
   }, []);
 
+  useEffect(() => {
+    
+    const fetchQuizDetails = async () => {
+      const started_at = new Date().toISOString();
+      const end_time = new Date(new Date().getTime() + duration*60*1000).toISOString();
+      const startQuizData = { email: userDetail?.email, started_at, end_time };
+      console.log("startQuizData",{startQuizData})
+      
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/quiz/start-quiz`,
+        startQuizData,
+        { withCredentials: true }
+      ); // Example duration: 5 minutes
+      const endTime = new Date(response.data.end_time).getTime();
+      const startedTime = new Date(response.data.started_at).getTime();
+      const remainingTime = Math.max(
+        Math.floor((endTime - startedTime) / 1000),
+        0
+      );
+      console.log("endtime",{endTime})
+      console.log("response.data.end_time",response.data.end_time )
+      console.log("startedtime",{startedTime})
+      console.log("difference",{diff: endTime-startedTime})
+     
+      setTimeLeft(remainingTime);
+    };
+
+    fetchQuizDetails();
+  }, []);
+
+  useEffect(() => {
+    if (timeLeft === null) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          console.log("here 1")
+          return 0;
+        }
+        console.log("here 2")
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timeLeft]);
+
+  if (timeLeft === null && questionsList.length > 0) {
+    console.log("timeLeft here",{timeLeft})
+    return <div>Loading...</div>;
+  }
+  console.log("here 3",{timeLeft})
+
   return (
     <>
-      {questionsList.length > 0 ? (
+      {questionsList.length > 0  ? (
         <div className="min-h-screen bg-gray-100 p-4 flex flex-col ">
           <ToastContainer
             position="top-center"
