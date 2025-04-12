@@ -207,7 +207,7 @@ export default function EnhancedQuizEnvironment() {
       const started_at = new Date().toISOString();
       const end_time = new Date(new Date().getTime() + duration*60*1000).toISOString();
       const startQuizData = { email: userDetail?.email, started_at, end_time };
-      console.log("startQuizData",{startQuizData})
+   
       
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/quiz/start-quiz`,
@@ -220,10 +220,7 @@ export default function EnhancedQuizEnvironment() {
         Math.floor((endTime - startedTime) / 1000),
         0
       );
-      console.log("endtime",{endTime})
-      console.log("response.data.end_time",response.data.end_time )
-      console.log("startedtime",{startedTime})
-      console.log("difference",{diff: endTime-startedTime})
+   
      
       setTimeLeft(remainingTime);
     };
