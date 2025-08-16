@@ -76,7 +76,7 @@ export function PlanBanner({ userPlan, email, userName }: PlanBannerProps) {
 
         {currentPlan.showUpgrade ? (
           <PlanUpgradeDialog email={email}>
-            <Button size="sm" className={`mt-2 sm:mt-0 ${currentPlan.buttonColor} text-white`}>
+            <Button size="sm" className={`mt-2 sm:mt-0 ${currentPlan.buttonColor} text-white`} disabled>
               Upgrade Now
               <ChevronRight className="ml-1 h-4 w-4" />
             </Button>

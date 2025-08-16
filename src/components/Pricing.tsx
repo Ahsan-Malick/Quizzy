@@ -19,7 +19,8 @@ const plans = [
   {
     name: "Geek",
     icon: Brain,
-    price: "$2.99/month",
+    // price: "$2.99/month",
+    price: "Free",
     features: [
       "Upto 35 AI-generated questions/request",
       "Priority support",
@@ -107,6 +108,7 @@ const Pricing: React.FC = () => {
                 <Button 
                   className="w-full bg-white text-gray-800 hover:bg-gray-200 transition-colors duration-300 cursor-pointer"
                   onClick={() => {console.log("clicked")}}
+                  disabled
                 >
                   {plan.name === "Pro" ? (
                     <a href="https://www.linkedin.com/in/ahsan-javed-3b1b2a151/" className="group w-full h-full block">

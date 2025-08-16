@@ -520,26 +520,32 @@ export default function UserWelcome() {
                 <Label className="font-semibold" htmlFor="numQuestions">
                   Number of Questions
                   <span className="text-gray-500 text-sm ml-1">
-                    (Max {userDetails?.subscription_status === "Geek" ? "35" : "5"} for current plan)
+                    {/* (Max {userDetails?.subscription_status === "Geek" ? "35" : "5"} for current plan) */}
+                    (Max 35 for current plan)
                   </span>
                 </Label>
                 <Input
                   id="numQuestions"
                   type="number"
                   min="1"
-                  max={userDetails?.subscription_status === "Geek" ? "35" : "5"}
+                  // max={userDetails?.subscription_status === "Geek" ? "35" : "5"}
+                  max="35"
                   value={numQuestions}
                   placeholder="Enter the number of questions"
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value > 5 && userDetails?.subscription_status !== "Geek") {
-                      toast.error("Number of questions cannot exceed 5 for Free Plan");
-                      setNumQuestions("5");
-                    }
-                    else if (value > 35 && userDetails?.subscription_status === "Geek") {
-                      toast.error("Number of questions cannot exceed 35 for Geek Plan");
+                    if (value > 35) {
+                      toast.error("Number of questions cannot exceed 35");
                       setNumQuestions("35");
                     }
+                    // if (value > 5 && userDetails?.subscription_status !== "Geek") {
+                    //   toast.error("Number of questions cannot exceed 5 for Free Plan");
+                    //   setNumQuestions("5");
+                    // }
+                    // else if (value > 35 && userDetails?.subscription_status === "Geek") {
+                    //   toast.error("Number of questions cannot exceed 35 for Geek Plan");
+                    //   setNumQuestions("35");
+                    // }
                      else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
@@ -573,7 +579,7 @@ export default function UserWelcome() {
                     >
                       Easy
                     </SelectItem>
-                    {userDetails?.subscription_status === "Geek" && (
+                    {/* {userDetails?.subscription_status === "Geek" && ( */}
                       <>
                     <SelectItem
                       className="cursor-pointer hover:bg-indigo-100"
@@ -588,7 +594,7 @@ export default function UserWelcome() {
                       Hard
                     </SelectItem>
                     </>
-                    )}
+                    {/* )} */}
                   </SelectContent>
                 </Select>
               </div>
@@ -635,13 +641,19 @@ export default function UserWelcome() {
                   placeholder="Enter the time allowed for the quiz"
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    if (value > 5 && userDetails?.subscription_status !== "Geek") {
-                      toast.error("Quiz Time cannot exceed 5 mins for Free Plan");
-                      setQuizTime("5");
-                    } else if (value > 180 && userDetails?.subscription_status === "Geek") {
-                      toast.error("Quiz Time cannot exceed 180 mins for Geek Plan");
+                    if (value > 180) {
+                      toast.error("Quiz Time cannot exceed 180 mins");
                       setQuizTime("180");
-                    } else if (quizgenerated) {
+                    } 
+                    // if (value > 5 && userDetails?.subscription_status !== "Geek") {
+                    //   toast.error("Quiz Time cannot exceed 5 mins for Free Plan");
+                    //   setQuizTime("5");
+                    // }
+                    // else if (value > 180 && userDetails?.subscription_status === "Geek") {
+                    //   toast.error("Quiz Time cannot exceed 180 mins for Geek Plan");
+                    //   setQuizTime("180");
+                    // } 
+                    else if (quizgenerated) {
                       toast.error("Quiz is Already Uploaded");
                     } else {
                       setQuizTime(e.target.value);
@@ -733,7 +745,8 @@ export default function UserWelcome() {
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
-                disabled={!download || userDetails?.subscription_status === "Free"}
+                // disabled={!download || userDetails?.subscription_status === "Free"}
+                disabled = {!download}
                 onClick={downloadPdf}
                 className="bg-green-500 text-white text-lg rounded-xl shadow-lg"
               >
